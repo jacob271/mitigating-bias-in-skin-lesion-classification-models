@@ -289,13 +289,6 @@ model_dict["ResNet"] = ResNet
 
 
 if __name__ == "__main__":
-    train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
-    test_set = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-                                 img_dir="./data/ISIC2018_Task3_Test_Input/")
-    val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth"
-                                "/ISIC2018_Task3_Validation_GroundTruth.csv",
-                                img_dir="./data/ISIC2018_Task3_Validation_Input/")
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     # DATA_MEANS = (train_dataset.data / 255.0).mean(axis=(0, 1, 2))
@@ -306,26 +299,35 @@ if __name__ == "__main__":
     # For training, we add some augmentation. Networks are too powerful and would overfit.
     train_transform = transforms.Compose(
         [
+            transforms.Resize((32, 32), antialias=True),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomResizedCrop((450, 600), scale=(0.8, 1.0), ratio=(0.75, 1.33)),
+            transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=True),
         ]
     )
 
-    NUM_IMAGES = 4
-    images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
-    to_pil = transforms.ToPILImage()
-    orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
-    orig_images = [train_transform(img) for img in orig_images]
+    train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
+                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/", transform=train_transform)
+    test_set = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
+                                 img_dir="./data/ISIC2018_Task3_Test_Input/", transform=test_transform)
+    val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth"
+                                "/ISIC2018_Task3_Validation_GroundTruth.csv",
+                                img_dir="./data/ISIC2018_Task3_Validation_Input/")
 
-    img_grid = torchvision.utils.make_grid(torch.stack(images + orig_images, dim=0), nrow=4, pad_value=0.5)
-    img_grid = img_grid.permute(1, 2, 0)
+    #NUM_IMAGES = 4
+    #images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
+    #to_pil = transforms.ToPILImage()
+    #orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
+    #orig_images = [train_transform(img) for img in orig_images]
 
-    plt.figure(figsize=(8, 8))
-    plt.title("Augmentation examples on training data")
-    plt.imshow(img_grid)
-    plt.axis("off")
-    plt.show()
-    plt.close()
+    #img_grid = torchvision.utils.make_grid(torch.stack(images + orig_images, dim=0), nrow=4, pad_value=0.5)
+    #img_grid = img_grid.permute(1, 2, 0)
+
+    #plt.figure(figsize=(8, 8))
+    #plt.title("Augmentation examples on training data")
+    #plt.imshow(img_grid)
+    #plt.axis("off")
+    #plt.show()
+    #plt.close()
 
     train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
     val_loader = DataLoader(val_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
