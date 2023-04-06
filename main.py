@@ -323,9 +323,9 @@ if __name__ == "__main__":
     plt.show()
     plt.close()
 
-    train_loader = DataLoader(train_set, batch_size=128, shuffle=True, drop_last=True, pin_memory=True, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=128, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
 
     resnet_model, resnet_results = train_model(
         model_name="ResNet",
