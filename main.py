@@ -3,19 +3,22 @@ from types import SimpleNamespace
 
 import torch
 import torchvision
+from lightning.pytorch.callbacks import ModelCheckpoint
 from torch import optim
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from torchvision.io import read_image
 import matplotlib.pyplot as plt
 import torch.nn as nn
-import numpy as np
 import lightning as pl
 from torchvision.transforms import transforms
 
 classes = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
 
 act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "gelu": nn.GELU}
+
+CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "saved_models/SkinLesionNets")
+os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
 
 class SkinLesionDataset(Dataset):
@@ -126,18 +129,23 @@ def train_model(model_name, save_name=None, **kwargs):
 
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
-        default_root_dir=os.path.join(".", save_name),  # Where to save models
+        default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),  # Where to save models
         # We run on a single GPU (if possible)
         accelerator="auto",
         devices=1,
         # How many epochs to train for if no patience is set
         max_epochs=180,
+        callbacks=[
+            ModelCheckpoint(
+                save_weights_only=True, mode="max", monitor="val_acc"
+            ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer]
+        ],
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
-    trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
-    trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
+    #trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
+    #trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(".", save_name + ".ckpt")
+    pretrained_filename = os.path.join(CHECKPOINT_PATH, save_name + ".ckpt")
     if os.path.isfile(pretrained_filename):
         print(f"Found pretrained model at {pretrained_filename}, loading...")
         # Automatically loads the model with the saved hyperparameters
