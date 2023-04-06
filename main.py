@@ -13,6 +13,9 @@ import torch.nn as nn
 import lightning as pl
 from torchvision.transforms import transforms
 
+from lightning.pytorch.loggers import WandbLogger
+wandb_logger = WandbLogger(project="bis-skin-lesion-detection")
+
 classes = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
 
 act_fn_by_name = {"tanh": nn.Tanh, "relu": nn.ReLU, "leakyrelu": nn.LeakyReLU, "gelu": nn.GELU}
@@ -140,6 +143,7 @@ def train_model(model_name, save_name=None, **kwargs):
                 save_weights_only=True, mode="max", monitor="val_acc"
             ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer]
         ],
+        logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     #trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
     #trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
