@@ -47,21 +47,10 @@ class SkinLesionDataset(Dataset):
         return image, label
 
 
-model_dict = {}
-
-
-def create_model(model_name, model_hparams):
-    if model_name in model_dict:
-        return model_dict[model_name](**model_hparams)
-    else:
-        assert False, f'Unknown model name "{model_name}". Available models are: {str(model_dict.keys())}'
-
-
 class SkinLesionModule(pl.LightningModule):
-    def __init__(self, model_name, model_hparams, optimizer_name, optimizer_hparams):
+    def __init__(self, model_hparams, optimizer_name, optimizer_hparams):
         """
         Inputs:
-            model_name - Name of the model/CNN to run. Used for creating the model (see function below)
             model_hparams - Hyperparameters for the model, as dictionary.
             optimizer_name - Name of the optimizer to use. Currently supported: Adam, SGD
             optimizer_hparams - Hyperparameters for the optimizer, as dictionary. This includes learning rate, weight decay, etc.
@@ -70,7 +59,7 @@ class SkinLesionModule(pl.LightningModule):
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
         self.save_hyperparameters()
         # Create model
-        self.model = create_model(model_name, model_hparams)
+        self.model = ResNet(**model_hparams)
         # Create loss module
         self.loss_module = nn.CrossEntropyLoss()
         # Example input for visualizing the graph in Tensorboard
@@ -122,14 +111,8 @@ class SkinLesionModule(pl.LightningModule):
         self.log("test_acc", acc)
 
 
-def train_model(model_name, save_name=None, **kwargs):
-    """
-    Inputs:
-        model_name - Name of the model you want to run. Is used to look up the class in "model_dict"
-        save_name (optional) - If specified, this name will be used for creating the checkpoint and logging directory.
-    """
-    if save_name is None:
-        save_name = model_name
+def train_model(**kwargs):
+    save_name = "ResNet"
 
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
@@ -157,7 +140,7 @@ def train_model(model_name, save_name=None, **kwargs):
         model = SkinLesionModule.load_from_checkpoint(pretrained_filename)
     else:
         # pl.seed_everything(42)  # To be reproducable
-        model = SkinLesionModule(model_name=model_name, **kwargs)
+        model = SkinLesionModule(**kwargs)
         trainer.fit(model, train_loader, val_loader)
         model = SkinLesionModule.load_from_checkpoint(
             trainer.checkpoint_callback.best_model_path
@@ -270,8 +253,8 @@ class ResNet(nn.Module):
         )
 
     def _init_params(self):
-        # Based on our discussion in Tutorial 4, we should initialize the convolutions according to the activation function
-        # Fan-out focuses on the gradient distribution, and is commonly used in ResNets
+        # Based on our discussion in Tutorial 4, we should initialize the convolutions according to the activation
+        # function. Fan-out focuses on the gradient distribution, and is commonly used in ResNets
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity=self.hparams.act_fn_name)
@@ -284,9 +267,6 @@ class ResNet(nn.Module):
         x = self.blocks(x)
         x = self.output_net(x)
         return x
-
-
-model_dict["ResNet"] = ResNet
 
 
 def visualize_example_images():
@@ -335,7 +315,6 @@ if __name__ == "__main__":
     test_loader = DataLoader(test_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
 
     resnet_model, resnet_results = train_model(
-        model_name="ResNet",
         model_hparams={"num_classes": 7, "c_hidden": [16, 32, 64], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
         optimizer_name="SGD",
         optimizer_hparams={"lr": 0.1, "momentum": 0.9, "weight_decay": 1e-4},
