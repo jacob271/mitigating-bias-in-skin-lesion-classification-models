@@ -4,17 +4,18 @@ from types import SimpleNamespace
 import torch
 import torchvision
 from lightning.pytorch.callbacks import ModelCheckpoint
+from matplotlib import pyplot as plt
 from torch import optim
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from torchvision.io import read_image
-import matplotlib.pyplot as plt
 import torch.nn as nn
 import lightning as pl
 from torchvision.transforms import transforms
 
 from lightning.pytorch.loggers import WandbLogger
-wandb_logger = WandbLogger(project="bis-skin-lesion-detection")
+
+wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 
 classes = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
 
@@ -145,8 +146,8 @@ def train_model(model_name, save_name=None, **kwargs):
         ],
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
-    #trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
-    #trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
+    # trainer.logger._log_graph = True  # If True, we plot the computation graph in tensorboard
+    # trainer.logger._default_hp_metric = None  # Optional logging argument that we don't need
 
     # Check whether pretrained model exists. If yes, load it and skip training
     pretrained_filename = os.path.join(CHECKPOINT_PATH, save_name + ".ckpt")
@@ -288,14 +289,30 @@ class ResNet(nn.Module):
 model_dict["ResNet"] = ResNet
 
 
-if __name__ == "__main__":
+def visualize_example_images():
+    NUM_IMAGES = 4
+    images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
+    orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
+    orig_images = [train_transform(img) for img in orig_images]
 
+    img_grid = torchvision.utils.make_grid(torch.stack(images + orig_images, dim=0), nrow=4, pad_value=0.5)
+    img_grid = img_grid.permute(1, 2, 0)
+
+    plt.figure(figsize=(8, 8))
+    plt.title("Augmentation examples on training data")
+    plt.imshow(img_grid)
+    plt.axis("off")
+    plt.show()
+    plt.close()
+
+
+if __name__ == "__main__":
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     # DATA_MEANS = (train_dataset.data / 255.0).mean(axis=(0, 1, 2))
     # DATA_STD = (train_dataset.data / 255.0).std(axis=(0, 1, 2))
     # print("Data mean", DATA_MEANS)
     # print("Data std", DATA_STD)
-    test_transform = transforms.Compose([])
+    test_transform = transforms.Compose([transforms.Resize((32, 32), antialias=True)])
     # For training, we add some augmentation. Networks are too powerful and would overfit.
     train_transform = transforms.Compose(
         [
@@ -311,23 +328,7 @@ if __name__ == "__main__":
                                  img_dir="./data/ISIC2018_Task3_Test_Input/", transform=test_transform)
     val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth"
                                 "/ISIC2018_Task3_Validation_GroundTruth.csv",
-                                img_dir="./data/ISIC2018_Task3_Validation_Input/")
-
-    #NUM_IMAGES = 4
-    #images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
-    #to_pil = transforms.ToPILImage()
-    #orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
-    #orig_images = [train_transform(img) for img in orig_images]
-
-    #img_grid = torchvision.utils.make_grid(torch.stack(images + orig_images, dim=0), nrow=4, pad_value=0.5)
-    #img_grid = img_grid.permute(1, 2, 0)
-
-    #plt.figure(figsize=(8, 8))
-    #plt.title("Augmentation examples on training data")
-    #plt.imshow(img_grid)
-    #plt.axis("off")
-    #plt.show()
-    #plt.close()
+                                img_dir="./data/ISIC2018_Task3_Validation_Input/", transform=test_transform)
 
     train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
     val_loader = DataLoader(val_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
