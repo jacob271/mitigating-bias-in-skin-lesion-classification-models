@@ -46,10 +46,9 @@ class ResNet(nn.Module):
     def __init__(
             self,
             num_classes=7,
-            num_blocks=[3, 3, 3],
-            c_hidden=[16, 32, 64],
+            num_blocks=[3, 3, 3], # TODO: Try [2, 2] and [4, 4, 4, 4]
+            c_hidden=[16, 32, 64], # TODO: Try [32, 64, 128]
             act_fn_name="relu",
-            block_name="ResNetBlock",
             **kwargs,
     ):
         """
