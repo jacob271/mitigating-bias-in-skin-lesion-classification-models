@@ -130,8 +130,11 @@ def train_model(**kwargs):
 
 
 def visualize_example_images():
+    train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
+                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/",
+                                  transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
     NUM_IMAGES = 4
-    images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
+    images = [train_set[idx][0] / 255.0 for idx in range(NUM_IMAGES)]
     orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
     orig_images = [train_transform(img) for img in orig_images]
 
@@ -149,7 +152,8 @@ def visualize_example_images():
 def dataset_mean_and_std():
     # Adapted from: https://www.binarystudy.com/2022/04/how-to-normalize-image-dataset-inpytorch.html
     train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
+                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/",
+                                  transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
     train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
     cnt = 0
     fst_moment = torch.empty(3)
@@ -176,12 +180,16 @@ def dataset_mean_and_std():
 if __name__ == "__main__":
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    DATA_MEANS = torch.tensor([194.6954, 139.2556, 145.4731])
-    DATA_STD = torch.tensor([36.0131, 38.9913, 43.4326])
+    # Mean and Std without resize
+    # DATA_MEANS = torch.tensor([194.6954, 139.2556, 145.4731])
+    # DATA_STD = torch.tensor([36.0131, 38.9913, 43.4326])
+
+    DATA_MEANS = torch.tensor([194.7129, 139.2769, 145.5000])
+    DATA_STD = torch.tensor([35.1942, 37.9567, 42.1663])
     print("Data mean", DATA_MEANS)
     print("Data std", DATA_STD)
 
-    test_transform = transforms.Compose([transforms.Resize((32, 32), antialias=True)])
+    test_transform = transforms.Compose([transforms.Resize((32, 32), antialias=True), transforms.Normalize(DATA_MEANS, DATA_STD)])
     # For training, we add some augmentation. Networks are too powerful and would overfit.
     train_transform = transforms.Compose(
         [
