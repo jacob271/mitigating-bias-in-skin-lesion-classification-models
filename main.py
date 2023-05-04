@@ -183,12 +183,13 @@ if __name__ == "__main__":
         print("Using gpu for training")
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    # Mean and Std without resize
-    # DATA_MEANS = torch.tensor([194.6954, 139.2556, 145.4731])
-    # DATA_STD = torch.tensor([36.0131, 38.9913, 43.4326])
+    # Mean and Std with resize
+    #DATA_MEANS = torch.tensor([194.7129, 139.2769, 145.5000])
+    #DATA_STD = torch.tensor([35.1942, 37.9567, 42.1663])
 
-    DATA_MEANS = torch.tensor([194.7129, 139.2769, 145.5000])
-    DATA_STD = torch.tensor([35.1942, 37.9567, 42.1663])
+    DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
+    DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
+
     print("Data mean", DATA_MEANS)
     print("Data std", DATA_STD)
 
