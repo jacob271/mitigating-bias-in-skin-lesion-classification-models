@@ -155,7 +155,7 @@ def dataset_mean_and_std():
     train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
                                   ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
                                   # transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
-    train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
+    train_loader = DataLoader(train_set, batch_size=64, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
     cnt = 0
     fst_moment = torch.empty(3)
     snd_moment = torch.empty(3)
@@ -213,9 +213,9 @@ if __name__ == "__main__":
                                 "/ISIC2018_Task3_Validation_GroundTruth.csv",
                                 img_dir="./data/ISIC2018_Task3_Validation_Input/", transform=test_transform)
 
-    train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=8, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=64, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
 
     resnet_model, resnet_results = train_model(
         model_hparams={"num_classes": 7, "c_hidden": [16, 32, 64], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
