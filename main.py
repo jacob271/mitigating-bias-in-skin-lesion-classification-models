@@ -90,6 +90,7 @@ class SkinLesionModule(pl.LightningModule):
 
 def train_model(**kwargs):
     save_name = "ResNet"
+    print("saving to ", os.path.join(CHECKPOINT_PATH, save_name))
 
     # Create a PyTorch Lightning trainer with the generation callback
     trainer = pl.Trainer(
@@ -131,8 +132,8 @@ def train_model(**kwargs):
 
 def visualize_example_images():
     train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/",
-                                  transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
+                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
+                                  #transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
     NUM_IMAGES = 4
     images = [train_set[idx][0] / 255.0 for idx in range(NUM_IMAGES)]
     orig_images = [train_set[idx][0] for idx in range(NUM_IMAGES)]
@@ -152,8 +153,8 @@ def visualize_example_images():
 def dataset_mean_and_std():
     # Adapted from: https://www.binarystudy.com/2022/04/how-to-normalize-image-dataset-inpytorch.html
     train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/",
-                                  transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
+                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
+                                  # transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
     train_loader = DataLoader(train_set, batch_size=8, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
     cnt = 0
     fst_moment = torch.empty(3)
@@ -178,6 +179,8 @@ def dataset_mean_and_std():
 
 
 if __name__ == "__main__":
+    if torch.cuda.is_available():
+        print("Using gpu for training")
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     # Mean and Std without resize
@@ -189,13 +192,15 @@ if __name__ == "__main__":
     print("Data mean", DATA_MEANS)
     print("Data std", DATA_STD)
 
-    test_transform = transforms.Compose([transforms.Resize((32, 32), antialias=True), transforms.Normalize(DATA_MEANS, DATA_STD)])
+    test_transform = transforms.Compose([
+        #transforms.Resize((32, 32), antialias=True),
+        transforms.Normalize(DATA_MEANS, DATA_STD)])
     # For training, we add some augmentation. Networks are too powerful and would overfit.
     train_transform = transforms.Compose(
         [
-            transforms.Resize((32, 32), antialias=True),
+            #transforms.Resize((32, 32), antialias=True),
             transforms.RandomHorizontalFlip(),
-            transforms.RandomResizedCrop((32, 32), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=True),
+            transforms.RandomResizedCrop((650, 400), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=True),
             transforms.Normalize(DATA_MEANS, DATA_STD),
         ]
     )
