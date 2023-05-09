@@ -1,12 +1,12 @@
 import os
 
 import torch
-from lightning.pytorch.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 from torch import optim
 import torch.nn as nn
-import lightning as pl
+import pytorch_lightning as pl
 
-from lightning.pytorch.loggers import WandbLogger
+from pytorch_lightning.loggers import WandbLogger
 
 from dataloaders import train_loader, val_loader, test_loader
 from model import ResNet
