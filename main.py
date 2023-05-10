@@ -83,6 +83,11 @@ class SkinLesionModule(pl.LightningModule):
         # By default logs it per epoch (weighted average over batches), and returns it afterwards
         self.log("test_acc", acc)
 
+    def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+        imgs, labels = batch
+        preds = self.model(imgs).argmax(dim=-1)
+        return preds
+
 
 def train_model(**kwargs):
     save_name = "ResNet"
