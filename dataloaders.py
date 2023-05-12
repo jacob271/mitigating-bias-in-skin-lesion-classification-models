@@ -32,9 +32,9 @@ val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth"
                             "/ISIC2018_Task3_Validation_GroundTruth.csv",
                             img_dir="./data/ISIC2018_Task3_Validation_Input/", transform=test_transform)
 
-train_loader = DataLoader(train_set, batch_size=64, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
-val_loader = DataLoader(val_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
-test_loader = DataLoader(test_set, batch_size=64, shuffle=False, drop_last=False, num_workers=4)
+train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
+test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
 
 def dataset_mean_and_std():

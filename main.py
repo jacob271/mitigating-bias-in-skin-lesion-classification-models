@@ -136,7 +136,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
     resnet_model, resnet_results = train_model(
-        model_hparams={"num_classes": 7, "c_hidden": [16, 32, 64], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
+        model_hparams={"num_classes": 7, "c_hidden": [32, 64, 128], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
         optimizer_name="SGD",
         optimizer_hparams={"lr": 0.1, "momentum": 0.9, "weight_decay": 1e-4},
     )
