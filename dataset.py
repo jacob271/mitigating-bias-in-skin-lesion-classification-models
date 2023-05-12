@@ -19,7 +19,7 @@ class SkinLesionDataset(Dataset):
         min_samples = number_of_samples.min()
         for relevant_class in relevant_classes:
             other_rows = dataframe[dataframe[relevant_class] != 1.0]
-            relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(min_samples)
+            relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(int(min_samples))
             dataframe = pd.concat([other_rows, relevant_rows])
 
         self.img_labels = dataframe
