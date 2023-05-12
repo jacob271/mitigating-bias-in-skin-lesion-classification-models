@@ -15,6 +15,7 @@ for column in df_images:
 df_metadata = pandas.read_csv("data/ISIC2018_Task3_Training_GroundTruth/metadata.csv")
 print(f"Unique age values: {df_metadata['age_approx'].unique()}")
 print(f"Unique values diagnosis_confirm_type: {df_metadata['diagnosis_confirm_type'].unique()}")
+print(f"Unique values diagnosis: {df_metadata['diagnosis'].unique()}")
 
 for column in df_images:
     stats = {"male": 0, "female": 0,

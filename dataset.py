@@ -8,7 +8,22 @@ from torchvision.io import read_image
 
 class SkinLesionDataset(Dataset):
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
-        self.img_labels = pd.read_csv(annotations_file)
+        dataframe = pd.read_csv(annotations_file)
+        discarded_classes = ['AKIEC', 'DF', 'VASC']
+        relevant_classes = ['MEL', 'NV', 'BCC', 'BKL']
+        for discarded_class in discarded_classes:
+            dataframe = dataframe[dataframe[discarded_class] != 1.0]
+            dataframe = dataframe.drop(columns=[discarded_class])
+        dataframe = dataframe.reset_index(drop=True)
+        number_of_samples = dataframe[relevant_classes].sum(axis=0)
+        min_samples = number_of_samples.min()
+        for relevant_class in relevant_classes:
+            other_rows = dataframe[dataframe[relevant_class] != 1.0]
+            relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(min_samples)
+            dataframe = pd.concat([other_rows, relevant_rows])
+
+        self.img_labels = dataframe
+
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
