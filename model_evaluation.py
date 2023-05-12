@@ -8,10 +8,11 @@ import pytorch_lightning as pl
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import wandb
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-model = SkinLesionModule.load_from_checkpoint('checkpoint1.cpkt', map_location=device)
+model = SkinLesionModule.load_from_checkpoint('charlie3.cpkt', map_location=device)
 
 trainer = pl.Trainer(
     # We run on a single GPU (if possible)
@@ -36,15 +37,17 @@ predictions = trainer.predict(model, test_loader)
 predictions = torch.cat(predictions)
 print(predictions)
 
-confm = ConfusionMatrix(task="multiclass", num_classes=7)
+confm = ConfusionMatrix(task="multiclass", num_classes=4)
 
 result = confm(predictions, all_labels)
 
-labels = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
+labels = ["MEL", "NV", "BCC", "BKL"]
 sns.heatmap(result, annot=True, cmap="Blues", xticklabels=labels, yticklabels=labels)
 plt.xlabel("Predicted")
 plt.ylabel("True")
 plt.title("Confusion Matrix")
-plt.show()
+plt.savefig("conf_ma.png")
+
+wandb.log({"confma": wandb.Image("conf_ma.png")})
 
 print(confm(predictions, all_labels))
