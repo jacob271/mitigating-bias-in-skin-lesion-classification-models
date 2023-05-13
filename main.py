@@ -44,9 +44,9 @@ class ResNet50Model(pl.LightningModule):
 
         self.loss_fn = nn.CrossEntropyLoss()
 
-        self.train_acc = torchmetrics.Accuracy()
-        self.val_acc = torchmetrics.Accuracy()
-        self.test_acc = torchmetrics.Accuracy()
+        self.train_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+        self.val_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+        self.test_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
 
     def forward(self, x):
         return self.model(x)
@@ -89,6 +89,12 @@ class ResNet50Model(pl.LightningModule):
         self.test_acc(torch.argmax(preds, dim=1), y)
 
         self.log('test_acc', self.test_acc, on_epoch=True)
+
+    def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+        imgs, labels = batch
+        preds = self.model(imgs)
+
+        return torch.argmax(preds, dim=1)
 
 
 class SkinLesionModule(pl.LightningModule):
@@ -171,7 +177,7 @@ def train_model(**kwargs):
         accelerator="auto",
         devices=1,
         # How many epochs to train for if no patience is set
-        max_epochs=180,
+        max_epochs=100,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
@@ -180,7 +186,7 @@ def train_model(**kwargs):
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
 
-    model = ResNet50Model(**kwargs)
+    model = ResNet50Model()
     trainer.fit(model, train_loader, val_loader)
     model = ResNet50Model.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
@@ -199,8 +205,6 @@ if __name__ == "__main__":
         print("Using gpu for training")
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    resnet_model, resnet_results = train_model(
-        model_hparams={"num_classes": 4},
-    )
+    resnet_model, resnet_results = train_model()
 
     print(resnet_results)
