@@ -24,13 +24,18 @@ train_transform = transforms.Compose(
     ]
 )
 
-train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                              ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/", transform=train_transform)
+train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv",
+                              img_dir="./data/ISIC2018_Task3_Training_Input/",
+                              metadata_file="./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv",
+                              transform=train_transform)
 test_set = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-                             img_dir="./data/ISIC2018_Task3_Test_Input/", transform=test_transform)
-val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth"
-                            "/ISIC2018_Task3_Validation_GroundTruth.csv",
-                            img_dir="./data/ISIC2018_Task3_Validation_Input/", transform=test_transform)
+                             img_dir="./data/ISIC2018_Task3_Test_Input/",
+                             metadata_file="./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv",
+                             transform=test_transform)
+val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv",
+                            img_dir="./data/ISIC2018_Task3_Validation_Input/",
+                            metadata_file="./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv",
+                            transform=test_transform)
 
 train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
 val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
@@ -40,7 +45,9 @@ test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False
 def dataset_mean_and_std():
     # Adapted from: https://www.binarystudy.com/2022/04/how-to-normalize-image-dataset-inpytorch.html
     data_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
+                                  ".csv",
+                                 metadata_file="./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv",
+                                 img_dir="./data/ISIC2018_Task3_Training_Input/")
     # transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
     data_loader = DataLoader(data_set, batch_size=64, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
     cnt = 0
@@ -67,7 +74,9 @@ def dataset_mean_and_std():
 
 def visualize_example_images():
     data_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                  ".csv", img_dir="./data/ISIC2018_Task3_Training_Input/")
+                                  ".csv",
+                                 metadata_file="./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv",
+                                 img_dir="./data/ISIC2018_Task3_Training_Input/")
     num_images = 4
     images = [data_set[idx][0] / 255.0 for idx in range(num_images)]
     orig_images = [data_set[idx][0] for idx in range(num_images)]
