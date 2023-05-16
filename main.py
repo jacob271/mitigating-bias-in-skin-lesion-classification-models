@@ -1,12 +1,14 @@
 import os
 
 import torch
+import torchmetrics
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch import optim
 import torch.nn as nn
 import pytorch_lightning as pl
 
 from pytorch_lightning.loggers import WandbLogger
+from torchvision import models
 
 from dataloaders import train_loader, val_loader, test_loader
 from model import ResNet
@@ -18,6 +20,81 @@ classes = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
 
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "./saved_models")
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
+
+
+class ResNet50Model(pl.LightningModule):
+
+    def __init__(self, pretrained=False, in_channels=3, num_classes=4, lr=3e-4, freeze=False):
+        super(ResNet50Model, self).__init__()
+        self.in_channels = in_channels
+        self.num_classes = num_classes
+        self.lr = lr
+
+        self.model = models.resnet50(pretrained=pretrained)
+
+        if freeze:
+            for param in self.model.parameters():
+                param.requires_grad = False
+
+        self.model.fc = nn.Sequential(
+            nn.Linear(self.model.fc.in_features, 128),
+            nn.Dropout(0.3),
+            nn.Linear(128, self.num_classes)
+        )
+
+        self.loss_fn = nn.CrossEntropyLoss()
+
+        self.train_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+        self.val_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+        self.test_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+
+    def forward(self, x):
+        return self.model(x)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=2)
+        return [optimizer], [scheduler]
+
+    def training_step(self, batch, batch_idx):
+
+        x, y = batch
+
+        preds = self.model(x)
+
+        loss = self.loss_fn(preds, y)
+        self.train_acc(torch.argmax(preds, dim=1), y)
+
+        self.log('train_loss', loss.item(), on_epoch=True)
+        self.log('train_acc', self.train_acc, on_epoch=True)
+
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+
+        x,y = batch
+
+        preds = self.model(x)
+
+        loss = self.loss_fn(preds, y)
+        self.val_acc(torch.argmax(preds, dim=1), y)
+
+        self.log('val_loss', loss.item(), on_epoch=True)
+        self.log('val_acc', self.val_acc, on_epoch=True)
+
+    def test_step(self, batch, batch_idx):
+
+        x,y = batch
+        preds = self.model(x)
+        self.test_acc(torch.argmax(preds, dim=1), y)
+
+        self.log('test_acc', self.test_acc, on_epoch=True)
+
+    def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+        imgs, labels = batch
+        preds = self.model(imgs)
+
+        return torch.argmax(preds, dim=1)
 
 
 class SkinLesionModule(pl.LightningModule):
@@ -100,7 +177,7 @@ def train_model(**kwargs):
         accelerator="auto",
         devices=1,
         # How many epochs to train for if no patience is set
-        max_epochs=180,
+        max_epochs=100,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
@@ -109,18 +186,11 @@ def train_model(**kwargs):
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
 
-    # Check whether pretrained model exists. If yes, load it and skip training
-    pretrained_filename = os.path.join(CHECKPOINT_PATH, save_name + ".ckpt")
-    if os.path.isfile(pretrained_filename):
-        print(f"Found pretrained model at {pretrained_filename}, loading...")
-        # Automatically loads the model with the saved hyperparameters
-        model = SkinLesionModule.load_from_checkpoint(pretrained_filename)
-    else:
-        model = SkinLesionModule(**kwargs)
-        trainer.fit(model, train_loader, val_loader)
-        model = SkinLesionModule.load_from_checkpoint(
-            trainer.checkpoint_callback.best_model_path
-        )  # Load best checkpoint after training
+    model = ResNet50Model()
+    trainer.fit(model, train_loader, val_loader)
+    model = ResNet50Model.load_from_checkpoint(
+        trainer.checkpoint_callback.best_model_path
+    )  # Load best checkpoint after training
 
     # Test best model on validation and test set
     val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
@@ -135,10 +205,6 @@ if __name__ == "__main__":
         print("Using gpu for training")
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    resnet_model, resnet_results = train_model(
-        model_hparams={"num_classes": 4, "c_hidden": [32, 64, 128], "num_blocks": [3, 3, 3], "act_fn_name": "relu"},
-        optimizer_name="SGD",
-        optimizer_hparams={"lr": 0.1, "momentum": 0.9, "weight_decay": 1e-4},
-    )
+    resnet_model, resnet_results = train_model()
 
     print(resnet_results)
