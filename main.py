@@ -22,15 +22,15 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "./saved_models")
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
 
-class ResNet50Model(pl.LightningModule):
+class ResNetModel(pl.LightningModule):
 
     def __init__(self, pretrained=False, in_channels=3, num_classes=4, lr=3e-4, freeze=False):
-        super(ResNet50Model, self).__init__()
+        super(ResNetModel, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.lr = lr
 
-        self.model = models.resnet50(pretrained=pretrained)
+        self.model = models.resnet18(pretrained=pretrained)
 
         if freeze:
             for param in self.model.parameters():
@@ -190,9 +190,9 @@ def train_model(**kwargs):
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
-    model = ResNet50Model()
+    model = ResNetModel()
     trainer.fit(model, train_loader, val_loader)
-    model = ResNet50Model.load_from_checkpoint(
+    model = ResNetModel.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
     )  # Load best checkpoint after training
 
