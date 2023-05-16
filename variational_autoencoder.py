@@ -17,8 +17,8 @@ def train_vae():
         max_epochs=100,
         callbacks=[
             ModelCheckpoint(
-                save_weights_only=True, mode="max", monitor="val_acc"
-            ),  # Save the best checkpoint based on the maximum val_acc recorded. Saves only weights and not optimizer]
+                save_weights_only=True, mode="min", monitor="loss"
+            ),
         ],
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
