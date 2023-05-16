@@ -7,7 +7,9 @@ from torchvision.io import read_image
 
 
 class SkinLesionDataset(Dataset):
-    def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None, include_metadata=False):
+    def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None, include_metadata=False, under_sampling=True):
+        # under_sampling: if True, the dataset will be balanced by under-sampling the relevant classes
+
         self.include_metadata = include_metadata
         dataframe = pd.read_csv(annotations_file)
         discarded_classes = ['AKIEC', 'DF', 'VASC']
@@ -16,12 +18,13 @@ class SkinLesionDataset(Dataset):
             dataframe = dataframe[dataframe[discarded_class] != 1.0]
             dataframe = dataframe.drop(columns=[discarded_class])
         dataframe = dataframe.reset_index(drop=True)
-        number_of_samples = dataframe[relevant_classes].sum(axis=0)
-        min_samples = number_of_samples.min()
-        for relevant_class in relevant_classes:
-            other_rows = dataframe[dataframe[relevant_class] != 1.0]
-            relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(int(min_samples))
-            dataframe = pd.concat([other_rows, relevant_rows])
+        if under_sampling:
+            number_of_samples = dataframe[relevant_classes].sum(axis=0)
+            min_samples = number_of_samples.min()
+            for relevant_class in relevant_classes:
+                other_rows = dataframe[dataframe[relevant_class] != 1.0]
+                relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(int(min_samples))
+                dataframe = pd.concat([other_rows, relevant_rows])
 
         metadata_sex = []
         metadata_age = []
