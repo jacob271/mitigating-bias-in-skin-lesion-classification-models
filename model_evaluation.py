@@ -15,7 +15,7 @@ import wandb
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-model = ResNetModel.load_from_checkpoint('charlie4.cpkt', map_location=device)
+model = ResNetModel.load_from_checkpoint('resnet18-1.cpkt', map_location=device)
 
 trainer = pl.Trainer(
     # We run on a single GPU (if possible)
