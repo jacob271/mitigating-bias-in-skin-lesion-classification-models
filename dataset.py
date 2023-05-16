@@ -74,10 +74,10 @@ class SkinLesionDataset(Dataset):
 DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
 DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
 
-test_transform = transforms.Compose([transforms.CenterCrop((448, 448)), transforms.Normalize(DATA_MEANS, DATA_STD)])
+test_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transforms.Normalize(DATA_MEANS, DATA_STD)])
 
-train_transform = transforms.Compose([transforms.CenterCrop((448, 448)), transforms.RandomHorizontalFlip(),
-                                      transforms.RandomResizedCrop((448, 448), scale=(0.8, 1.0), ratio=(0.75, 1.33),
+train_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transforms.RandomHorizontalFlip(),
+                                      transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33),
                                                                    antialias=True),
                                       transforms.Normalize(DATA_MEANS, DATA_STD), ])
 

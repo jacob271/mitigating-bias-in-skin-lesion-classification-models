@@ -23,11 +23,11 @@ def train_vae():
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
 
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=12, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
 
-    model = VAE(input_height=450, enc_type="resnet50", enc_out_dim=2048)
+    model = VAE(input_height=360, enc_type="resnet18", enc_out_dim=512)
     trainer.fit(model, train_loader, val_loader)
     model = VAE.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
