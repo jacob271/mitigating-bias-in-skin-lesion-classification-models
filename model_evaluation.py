@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchmetrics import ConfusionMatrix
 
 from dataset import val_set_with_metadata
-from main import ResNet50Model
+from main import ResNetModel
 import pytorch_lightning as pl
 
 import matplotlib.pyplot as plt
@@ -15,7 +15,7 @@ import wandb
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-model = ResNet50Model.load_from_checkpoint('charlie4.cpkt', map_location=device)
+model = ResNetModel.load_from_checkpoint('resnet18-1.cpkt', map_location=device)
 
 trainer = pl.Trainer(
     # We run on a single GPU (if possible)
