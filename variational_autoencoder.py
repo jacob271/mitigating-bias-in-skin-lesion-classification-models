@@ -1,5 +1,5 @@
 import torch
-from pl_bolts.models.autoencoders import VAE
+from basic_vae_module import VAE
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -27,7 +27,7 @@ def train_vae():
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
-    model = VAE(input_heigth=450, enc_type="resnet50")
+    model = VAE(input_height=450, enc_type="resnet50")
     trainer.fit(model, train_loader, val_loader)
     model = VAE.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
