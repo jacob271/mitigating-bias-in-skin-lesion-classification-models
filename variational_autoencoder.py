@@ -27,7 +27,7 @@ def train_vae():
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
-    model = VAE(input_height=450, enc_type="resnet50")
+    model = VAE(input_height=400, enc_type="resnet50", enc_out_dim=2048)
     trainer.fit(model, train_loader, val_loader)
     model = VAE.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
