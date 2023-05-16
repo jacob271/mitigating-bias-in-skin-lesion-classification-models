@@ -27,15 +27,15 @@ trainer = pl.Trainer(
 )
 
 
-test_loader = DataLoader(val_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
+val_loader = DataLoader(val_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
 
 all_labels = []
-for batch in test_loader:
+for batch in val_loader:
     imgs, labels = batch
     all_labels.append(labels)
 
 print(all_labels)
-predictions = trainer.predict(model, test_loader)
+predictions = trainer.predict(model, val_loader)
 predictions = torch.cat(predictions)
 print(predictions)
 
@@ -57,8 +57,6 @@ plt.title("Confusion Matrix")
 plt.savefig("conf_ma.png")
 
 wandb.log({"confma": wandb.Image("conf_ma.png")})
-
-print(confm(predictions, confm_labels))
 
 # calculate accuracy based on sex
 male_predictions = []
