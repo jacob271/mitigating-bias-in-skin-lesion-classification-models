@@ -77,7 +77,7 @@ DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
 test_transform = transforms.Compose([transforms.Normalize(DATA_MEANS, DATA_STD)])
 
 train_transform = transforms.Compose([transforms.RandomHorizontalFlip(),
-                                      transforms.RandomResizedCrop((650, 400), scale=(0.8, 1.0), ratio=(0.75, 1.33),
+                                      transforms.RandomResizedCrop((600, 450), scale=(0.8, 1.0), ratio=(0.75, 1.33),
                                                                    antialias=True),
                                       transforms.Normalize(DATA_MEANS, DATA_STD), ])
 
