@@ -21,4 +21,6 @@ You now have all the metadata you need for the dataset.
 
 ## Evaluation
 
-Check your wandb account to see some metrics about your model or run `python3.10 model_evaluation.py`.
+Check your wandb account to see some metrics about your model.
+
+Additional metrics are provided in the `model_evaluation.ipynb` notebook. You might want to check out [this link](https://docs.anaconda.com/free/anaconda/jupyter-notebooks/remote-jupyter-notebook/) if you want to run the notebook on a remote server.
