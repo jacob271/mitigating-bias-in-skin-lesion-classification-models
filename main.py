@@ -8,15 +8,15 @@ import torch.nn as nn
 import pytorch_lightning as pl
 
 from pytorch_lightning.loggers import WandbLogger
+from torch.utils.data import DataLoader
 from torchvision import models
 
-from dataloaders import train_loader, val_loader, test_loader
+from dataset import train_set, val_set, test_set
 from model import ResNet
 
 wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 
 classes = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
-
 
 CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "./saved_models")
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
@@ -45,8 +45,8 @@ class ResNet50Model(pl.LightningModule):
         self.loss_fn = nn.CrossEntropyLoss()
 
         self.train_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
-        self.val_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
-        self.test_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
+        self.val_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
+        self.test_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
 
     def forward(self, x):
         return self.model(x)
@@ -72,7 +72,7 @@ class ResNet50Model(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
 
-        x,y = batch
+        x, y = batch
 
         preds = self.model(x)
 
@@ -84,7 +84,7 @@ class ResNet50Model(pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
 
-        x,y = batch
+        x, y = batch
         preds = self.model(x)
         self.test_acc(torch.argmax(preds, dim=1), y)
 
@@ -185,6 +185,10 @@ def train_model(**kwargs):
         ],
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
+
+    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
     model = ResNet50Model()
     trainer.fit(model, train_loader, val_loader)

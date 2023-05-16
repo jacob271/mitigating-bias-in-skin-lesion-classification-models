@@ -5,8 +5,7 @@ from torch.utils.data import DataLoader
 from torchmetrics import ConfusionMatrix
 from torchmetrics.functional import accuracy
 
-from dataset import SkinLesionDataset
-from dataloaders import test_transform
+from dataset import train_set_with_metadata
 from main import ResNet50Model
 import pytorch_lightning as pl
 
@@ -27,13 +26,8 @@ trainer = pl.Trainer(
     logger=False,
 )
 
-train_set = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-                              img_dir="./data/ISIC2018_Task3_Test_Input/",
-                              metadata_file="./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv",
-                              include_metadata=True,
-                              transform=test_transform)
 
-test_loader = DataLoader(train_set, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
+test_loader = DataLoader(train_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
 
 all_labels = []
 for batch in test_loader:
