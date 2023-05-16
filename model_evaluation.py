@@ -86,9 +86,13 @@ female_accuracy = metric(torch.cat(female_predictions), torch.cat(female_labels)
 
 overall_accuracy = metric(predictions, confm_labels)
 
+wandb.log({"overall_accuracy": overall_accuracy})
+wandb.log({"male_accuracy": male_accuracy})
 print(f"male_acc: {male_accuracy}")
+wandb.log({"female_accuracy": female_accuracy})
 print(f"female_acc: {female_accuracy}")
 
 bias = (math.pow(male_accuracy - overall_accuracy, 2) + math.pow(female_accuracy - overall_accuracy, 2)) / 2
 
 print(f"bias: {bias}")
+wandb.log({"bias": bias})
