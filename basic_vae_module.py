@@ -149,6 +149,11 @@ class VAE(LightningModule):
         self.log_dict({f"val_{k}": v for k, v in logs.items()})
         return loss
 
+    def test_step(self, batch, batch_idx):
+        loss, logs = self.step(batch, batch_idx)
+        self.log_dict({f"test_{k}": v for k, v in logs.items()})
+        return loss
+
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
