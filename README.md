@@ -4,7 +4,7 @@
 
 Install the requirements with `pip3.10 install -r requirements.txt`.
 
-Download the dataset for the ISIC2018 challenge (INSERT LINK) and paste it into a folder `data`.
+Download the datasets for the ISIC2018 challenge task 3 [see here](https://challenge.isic-archive.com/data/#2018) and paste it into a folder `data`.
 
 Run `pip3 install isic-cli` followed by these three commands ([see here if that does not work](https://stackoverflow.com/questions/35898734/pip-installs-packages-successfully-but-executables-not-found-from-command-line)):
 
