@@ -17,7 +17,7 @@ def train_vae():
         max_epochs=100,
         callbacks=[
             ModelCheckpoint(
-                save_weights_only=True, mode="min", monitor="loss"
+                save_weights_only=True, mode="min", monitor="val_loss"
             ),
         ],
         logger=wandb_logger
