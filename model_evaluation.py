@@ -1,11 +1,11 @@
 import math
 
 import torch
+import torchmetrics.classification
 from torch.utils.data import DataLoader
 from torchmetrics import ConfusionMatrix
-from torchmetrics.functional import accuracy
 
-from dataset import train_set_with_metadata
+from dataset import val_set_with_metadata
 from main import ResNet50Model
 import pytorch_lightning as pl
 
@@ -27,7 +27,7 @@ trainer = pl.Trainer(
 )
 
 
-test_loader = DataLoader(train_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
+test_loader = DataLoader(val_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
 
 all_labels = []
 for batch in test_loader:
@@ -79,10 +79,12 @@ for i in range(len(predictions)):
 print(male_labels)
 print(male_predictions)
 
-male_accuracy = accuracy(torch.cat(male_predictions), torch.cat(male_labels), task="multiclass", num_classes=4)
-female_accuracy = accuracy(torch.cat(female_predictions), torch.cat(female_labels), task="multiclass", num_classes=4)
+metric = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
 
-overall_accuracy = accuracy(predictions, confm_labels, task="multiclass", num_classes=4)
+male_accuracy = metric(torch.cat(male_predictions), torch.cat(male_labels))
+female_accuracy = metric(torch.cat(female_predictions), torch.cat(female_labels))
+
+overall_accuracy = metric(predictions, confm_labels)
 
 print(f"male_acc: {male_accuracy}")
 print(f"female_acc: {female_accuracy}")
