@@ -23,14 +23,7 @@ class VAE(LightningModule):
         # not pretrained
         vae = VAE()
 
-        # pretrained on cifar10
-        vae = VAE(input_height=32).from_pretrained('cifar10-resnet18')
-
-        # pretrained on stl10
-        vae = VAE(input_height=32).from_pretrained('stl10-resnet18')
     """
-
-    pretrained_urls = {}
 
     def __init__(
         self,
@@ -89,16 +82,6 @@ class VAE(LightningModule):
         self.fc_mu = nn.Linear(self.enc_out_dim, self.latent_dim)
         self.fc_var = nn.Linear(self.enc_out_dim, self.latent_dim)
 
-    @staticmethod
-    def pretrained_weights_available():
-        return list(VAE.pretrained_urls.keys())
-
-    def from_pretrained(self, checkpoint_name):
-        if checkpoint_name not in VAE.pretrained_urls:
-            raise KeyError(str(checkpoint_name) + " not present in pretrained weights.")
-
-        return self.load_from_checkpoint(VAE.pretrained_urls[checkpoint_name], strict=False)
-
     def forward(self, x):
         x = self.encoder(x)
         mu = self.fc_mu(x)
@@ -156,27 +139,3 @@ class VAE(LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
-
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        parser = ArgumentParser(parents=[parent_parser], add_help=False)
-
-        parser.add_argument("--enc_type", type=str, default="resnet18", help="resnet18/resnet50")
-        parser.add_argument("--first_conv", action="store_true")
-        parser.add_argument("--maxpool1", action="store_true")
-        parser.add_argument("--lr", type=float, default=1e-4)
-
-        parser.add_argument(
-            "--enc_out_dim",
-            type=int,
-            default=512,
-            help="512 for resnet18, 2048 for bigger resnets, adjust for wider resnets",
-        )
-        parser.add_argument("--kl_coeff", type=float, default=0.1)
-        parser.add_argument("--latent_dim", type=int, default=256)
-
-        parser.add_argument("--batch_size", type=int, default=256)
-        parser.add_argument("--num_workers", type=int, default=8)
-        parser.add_argument("--data_dir", type=str, default=".")
-
-        return parser
