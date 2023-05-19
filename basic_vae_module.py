@@ -24,7 +24,6 @@ class VAE(LightningModule):
         vae = VAE()
 
     """
-
     def __init__(
         self,
         input_height: int,
@@ -88,6 +87,15 @@ class VAE(LightningModule):
         log_var = self.fc_var(x)
         p, q, z = self.sample(mu, log_var)
         return self.decoder(z)
+   
+    def generate_samples(self, num_samples):
+        self.eval()
+        with torch.no_grad():
+            latent_vectors = torch.randn(num_samples, self.latent_dim)
+            latent_vectors = latent_vectors.to(self.device)
+            generated_images = self.decoder(latent_vectors)
+
+        return generated_images
 
     def _run_step(self, x):
         x = self.encoder(x)
