@@ -1,5 +1,3 @@
-from argparse import ArgumentParser
-
 import torch
 from pytorch_lightning import LightningModule
 from torch import nn
@@ -93,6 +91,16 @@ class VAE(LightningModule):
         with torch.no_grad():
             latent_vectors = torch.randn(num_samples, self.latent_dim)
             latent_vectors = latent_vectors.to(self.device)
+            generated_images = self.decoder(latent_vectors)
+
+        return generated_images
+
+    def generate_samples_for_latent_variable(self, latent_variable):
+        self.eval()
+        with torch.no_grad():
+            latent_vectors = torch.zeros(11, 15)
+            column_values = torch.tensor([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
+            latent_vectors[:,   latent_variable] = column_values
             generated_images = self.decoder(latent_vectors)
 
         return generated_images
