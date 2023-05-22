@@ -20,8 +20,7 @@ class SkinLesionDataset(Dataset):
         dataframe = pd.read_csv(annotations_file)
         self.use_sample_probabilities = True if sample_probabilities_file else False
         self.sample_probabilities = None
-        if self.use_sample_probabilities:
-            dataframe['sample_probability'] = pd.read_csv(sample_probabilities_file)['sample_probability']
+        
 
         discarded_classes = ['AKIEC', 'DF', 'VASC']
         relevant_classes = ['MEL', 'NV', 'BCC', 'BKL']
@@ -55,7 +54,7 @@ class SkinLesionDataset(Dataset):
         dataframe['sex'] = metadata_sex
 
         if self.use_sample_probabilities:
-            self.sample_probabilities = dataframe['sample_probability'].values
+            self.sample_probabilities = pd.read_csv(sample_probabilities_file)['sample_probability'].values
             # Normalize probabilities to account for under sampling
             self.sample_probabilities = self.sample_probabilities / np.sum(self.sample_probabilities)
 
