@@ -91,9 +91,7 @@ class VAE(LightningModule):
         with torch.no_grad():
             x = self.encoder(x)
             mu = self.fc_mu(x)
-            log_var = self.fc_var(x)
-            p, q, z = self.sample(mu, log_var)
-        return z
+        return mu
    
     def generate_samples(self, num_samples):
         self.eval()
