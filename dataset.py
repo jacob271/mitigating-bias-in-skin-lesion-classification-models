@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import torch
 import torchvision
 from matplotlib import pyplot as plt
@@ -11,7 +12,7 @@ from torchvision.io import read_image
 
 class SkinLesionDataset(Dataset):
     def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None,
-                 include_metadata=False, under_sampling=True, id_as_label=False):
+                 include_metadata=False, under_sampling=True, id_as_label=False, sample_probabilities_file=""):
         # under_sampling: if True, the dataset will be balanced by under-sampling the relevant classes
 
         self.id_as_label = id_as_label
@@ -49,6 +50,11 @@ class SkinLesionDataset(Dataset):
 
         self.img_labels = dataframe
 
+        self.use_sample_probabilities = True if sample_probabilities_file else False
+        self.sample_probabilities = None
+        if self.use_sample_probabilities:
+            self.sample_probabilities = pd.read_csv(sample_probabilities_file)
+
         self.img_dir = img_dir
         self.transform = transform
         self.target_transform = target_transform
@@ -57,6 +63,8 @@ class SkinLesionDataset(Dataset):
         return len(self.img_labels)
 
     def __getitem__(self, idx):
+        if self.use_sample_probabilities:
+            idx = self.get_random_index()
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0] + ".jpg")
         image = read_image(img_path)
         image = image.to(torch.float32)
@@ -82,6 +90,13 @@ class SkinLesionDataset(Dataset):
             image = self.transform(image)
         return image
 
+    def get_random_index(self):
+        probabilities = self.sample_probabilities['sample_probability'].values
+        random_number = np.random.uniform(0, 1)
+        cumulative_probabilities = np.cumsum(probabilities)
+        selected_index = np.searchsorted(cumulative_probabilities, random_number)
+        return selected_index
+
 
 DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
 DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
@@ -94,27 +109,35 @@ train_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transfo
                                       transforms.Normalize(DATA_MEANS, DATA_STD), ])
 
 
-def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False):
+def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False,
+                use_sample_probabilities=False):
     if dataset_name == "train":
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
+        sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/sample_probabilities.csv"
         transform = train_transform
     elif dataset_name == "test":
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
+        sample_probabilities_file = "./data/ISIC2018_Task3_Test_GroundTruth/sample_probabilities.csv"
         transform = test_transform
     elif dataset_name == "validation":
         img_dir = "./data/ISIC2018_Task3_Validation_Input/"
         metadata_file = "./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv"
+        sample_probabilities_file = "./data/ISIC2018_Task3_Validation_GroundTruth/sample_probabilities.csv"
         transform = test_transform
     else:
         raise ValueError("Invalid dataset name.")
 
+    if not use_sample_probabilities:
+        sample_probabilities_file = ""
+
     return SkinLesionDataset(csv_file, img_dir=img_dir, metadata_file=metadata_file, transform=transform,
-                             include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label)
+                             include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label,
+                             sample_probabilities_file=sample_probabilities_file)
 
 
 def dataset_mean_and_std():
