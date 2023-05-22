@@ -11,9 +11,10 @@ from torchvision.io import read_image
 
 class SkinLesionDataset(Dataset):
     def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None,
-                 include_metadata=False, under_sampling=True):
+                 include_metadata=False, under_sampling=True, id_as_label=False):
         # under_sampling: if True, the dataset will be balanced by under-sampling the relevant classes
 
+        self.id_as_label = id_as_label
         self.include_metadata = include_metadata
         dataframe = pd.read_csv(annotations_file)
         discarded_classes = ['AKIEC', 'DF', 'VASC']
@@ -59,7 +60,10 @@ class SkinLesionDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0] + ".jpg")
         image = read_image(img_path)
         image = image.to(torch.float32)
-        label = self.img_labels.iloc[idx][1:5].astype(float).argmax()
+        if self.id_as_label:
+            label = self.img_labels.iloc[idx][0]
+        else:
+            label = self.img_labels.iloc[idx][1:5].astype(float).argmax()
         age = self.img_labels.iloc[idx]['age']
         sex = self.img_labels.iloc[idx]['sex']
         if self.transform:
@@ -106,6 +110,29 @@ val_set_with_metadata = SkinLesionDataset(
     img_dir="./data/ISIC2018_Task3_Validation_Input/",
     metadata_file="./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv", transform=test_transform,
     under_sampling=False, include_metadata=True)
+
+
+def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False):
+    if dataset_name == "train":
+        img_dir = "./data/ISIC2018_Task3_Training_Input/"
+        metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
+        csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
+        transform = train_transform
+    elif dataset_name == "test":
+        img_dir = "./data/ISIC2018_Task3_Test_Input/"
+        metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
+        csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
+        transform = test_transform
+    elif dataset_name == "validation":
+        img_dir = "./data/ISIC2018_Task3_Validation_Input/"
+        metadata_file = "./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv"
+        csv_file = "./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv"
+        transform = test_transform
+    else:
+        raise ValueError("Invalid dataset name.")
+
+    return SkinLesionDataset(csv_file, img_dir=img_dir, metadata_file=metadata_file, transform=transform,
+                             include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label)
 
 
 def dataset_mean_and_std():
