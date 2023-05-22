@@ -18,12 +18,18 @@ class SkinLesionDataset(Dataset):
         self.id_as_label = id_as_label
         self.include_metadata = include_metadata
         dataframe = pd.read_csv(annotations_file)
+        self.use_sample_probabilities = True if sample_probabilities_file else False
+        self.sample_probabilities = None
+        if self.use_sample_probabilities:
+            dataframe['sample_probability'] = pd.read_csv(sample_probabilities_file)['sample_probability']
+
         discarded_classes = ['AKIEC', 'DF', 'VASC']
         relevant_classes = ['MEL', 'NV', 'BCC', 'BKL']
         for discarded_class in discarded_classes:
             dataframe = dataframe[dataframe[discarded_class] != 1.0]
             dataframe = dataframe.drop(columns=[discarded_class])
         dataframe = dataframe.reset_index(drop=True)
+
         if under_sampling:
             number_of_samples = dataframe[relevant_classes].sum(axis=0)
             min_samples = number_of_samples.min()
@@ -48,12 +54,12 @@ class SkinLesionDataset(Dataset):
         dataframe['age'] = metadata_age
         dataframe['sex'] = metadata_sex
 
-        self.img_labels = dataframe
-
-        self.use_sample_probabilities = True if sample_probabilities_file else False
-        self.sample_probabilities = None
         if self.use_sample_probabilities:
-            self.sample_probabilities = pd.read_csv(sample_probabilities_file)
+            self.sample_probabilities = dataframe['sample_probability'].values
+            # Normalize probabilities to account for under sampling
+            self.sample_probabilities = self.sample_probabilities / np.sum(self.sample_probabilities)
+
+        self.img_labels = dataframe
 
         self.img_dir = img_dir
         self.transform = transform
@@ -91,9 +97,8 @@ class SkinLesionDataset(Dataset):
         return image
 
     def get_random_index(self):
-        probabilities = self.sample_probabilities['sample_probability'].values
         random_number = np.random.uniform(0, 1)
-        cumulative_probabilities = np.cumsum(probabilities)
+        cumulative_probabilities = np.cumsum(self.sample_probabilities)
         selected_index = np.searchsorted(cumulative_probabilities, random_number)
         return selected_index
 

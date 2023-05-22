@@ -186,7 +186,7 @@ def train_model(**kwargs):
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
     train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=True)
-    val_set = get_dataset("val")
+    val_set = get_dataset("validation")
     test_set = get_dataset("test")
     train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
