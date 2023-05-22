@@ -5,7 +5,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
-from dataset import train_set, test_set, val_set
+from dataset import get_dataset
 
 wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 
@@ -22,7 +22,9 @@ def train_vae():
         ],
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
-
+    train_set = get_dataset("train", under_sampling=True)
+    val_set = get_dataset("validation")
+    test_set = get_dataset("test")
     train_loader = DataLoader(train_set, batch_size=12, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
     val_loader = DataLoader(val_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
@@ -35,9 +37,8 @@ def train_vae():
 
     val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
     test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
-    result = {"test": test_result[0]["test_loss"], "val": val_result[0]["val_loss"]}
 
-    return model, result
+    return model, {"val": val_result, "test": test_result}
 
 
 if __name__ == "__main__":

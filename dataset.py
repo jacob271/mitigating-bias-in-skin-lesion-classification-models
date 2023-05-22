@@ -93,32 +93,6 @@ train_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transfo
                                                                    antialias=True),
                                       transforms.Normalize(DATA_MEANS, DATA_STD), ])
 
-train_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv",
-                              img_dir="./data/ISIC2018_Task3_Training_Input/",
-                              metadata_file="./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv",
-                              transform=train_transform)
-train_set_with_metadata = SkinLesionDataset(
-    "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-    img_dir="./data/ISIC2018_Task3_Test_Input/", metadata_file="./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv",
-    include_metadata=True, transform=test_transform)
-test_set = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-                             img_dir="./data/ISIC2018_Task3_Test_Input/",
-                             metadata_file="./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv",
-                             transform=test_transform, under_sampling=False)
-test_set_with_metadata = SkinLesionDataset("./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv",
-                                           img_dir="./data/ISIC2018_Task3_Test_Input/",
-                                           metadata_file="./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv",
-                                           transform=test_transform, under_sampling=False, include_metadata=True)
-val_set = SkinLesionDataset("./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv",
-                            img_dir="./data/ISIC2018_Task3_Validation_Input/",
-                            metadata_file="./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv",
-                            transform=test_transform, under_sampling=False)
-val_set_with_metadata = SkinLesionDataset(
-    "./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv",
-    img_dir="./data/ISIC2018_Task3_Validation_Input/",
-    metadata_file="./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv", transform=test_transform,
-    under_sampling=False, include_metadata=True)
-
 
 def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False):
     if dataset_name == "train":
