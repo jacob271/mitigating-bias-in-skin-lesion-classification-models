@@ -74,6 +74,14 @@ class SkinLesionDataset(Dataset):
             return image, [label, age, sex]
         return image, label
 
+    def get_image_from_isic_id(self, isic_id):
+        img_path = os.path.join(self.img_dir, isic_id + ".jpg")
+        image = read_image(img_path)
+        image = image.to(torch.float32)
+        if self.transform:
+            image = self.transform(image)
+        return image
+
 
 DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
 DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
