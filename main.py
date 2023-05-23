@@ -11,7 +11,7 @@ from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import DataLoader
 from torchvision import models
 
-from dataset import train_set, val_set, test_set
+from dataset import get_dataset
 from model import ResNet
 
 wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
@@ -177,7 +177,7 @@ def train_model(**kwargs):
         accelerator="auto",
         devices=1,
         # How many epochs to train for if no patience is set
-        max_epochs=100,
+        max_epochs=180,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
@@ -185,8 +185,10 @@ def train_model(**kwargs):
         ],
         logger=wandb_logger
     )  # In case your notebook crashes due to the progress bar, consider increasing the refresh rate
-
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=True)
+    val_set = get_dataset("validation")
+    test_set = get_dataset("test")
+    train_loader = DataLoader(train_set, batch_size=32, shuffle=False, drop_last=False, pin_memory=False, num_workers=1)
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
