@@ -18,7 +18,9 @@ class SkinLesionDataset(Dataset):
         self.id_as_label = id_as_label
         self.include_metadata = include_metadata
         dataframe = pd.read_csv(annotations_file)
-        self.use_sample_probabilities = True if sample_probabilities_file else False
+        self.use_sample_probabilities = False
+        if sample_probabilities_file:
+            self.use_sample_probabilities = True
         self.sample_probabilities = None
         
 
@@ -28,6 +30,8 @@ class SkinLesionDataset(Dataset):
             dataframe = dataframe[dataframe[discarded_class] != 1.0]
             dataframe = dataframe.drop(columns=[discarded_class])
         dataframe = dataframe.reset_index(drop=True)
+        
+        
 
         if under_sampling:
             number_of_samples = dataframe[relevant_classes].sum(axis=0)
@@ -36,7 +40,18 @@ class SkinLesionDataset(Dataset):
                 other_rows = dataframe[dataframe[relevant_class] != 1.0]
                 relevant_rows = dataframe[dataframe[relevant_class] == 1.0].head(int(min_samples))
                 dataframe = pd.concat([other_rows, relevant_rows])
+            dataframe = dataframe.reset_index(drop=True)
 
+        # Set sample probabilities
+        if self.use_sample_probabilities:
+            sp_df = pd.read_csv(sample_probabilities_file)
+            sp_df = sp_df[sp_df['isic_id'].isin(dataframe['image'])]
+            sp_df = sp_df.reset_index(drop=True)
+            self.sample_probabilities = sp_df['sample_probability'].values
+            # Normalize probabilities to account for under sampling
+            self.sample_probabilities = self.sample_probabilities / np.sum(self.sample_probabilities)
+        
+                
         metadata_sex = []
         metadata_age = []
         metadata = pd.read_csv(metadata_file)
@@ -51,12 +66,7 @@ class SkinLesionDataset(Dataset):
                 metadata_sex.append(metadata[metadata['isic_id'] == isic_id]['sex'].values[0])
 
         dataframe['age'] = metadata_age
-        dataframe['sex'] = metadata_sex
-
-        if self.use_sample_probabilities:
-            self.sample_probabilities = pd.read_csv(sample_probabilities_file)['sample_probability'].values
-            # Normalize probabilities to account for under sampling
-            self.sample_probabilities = self.sample_probabilities / np.sum(self.sample_probabilities)
+        dataframe['sex'] = metadata_sex            
 
         self.img_labels = dataframe
 
@@ -125,13 +135,13 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
-        sample_probabilities_file = "./data/ISIC2018_Task3_Test_GroundTruth/sample_probabilities.csv"
+        sample_probabilities_file = ""
         transform = test_transform
     elif dataset_name == "validation":
         img_dir = "./data/ISIC2018_Task3_Validation_Input/"
         metadata_file = "./data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Validation_GroundTruth/ISIC2018_Task3_Validation_GroundTruth.csv"
-        sample_probabilities_file = "./data/ISIC2018_Task3_Validation_GroundTruth/sample_probabilities.csv"
+        sample_probabilities_file = ""
         transform = test_transform
     else:
         raise ValueError("Invalid dataset name.")
