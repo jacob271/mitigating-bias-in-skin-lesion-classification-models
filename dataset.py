@@ -83,10 +83,9 @@ class SkinLesionDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0] + ".jpg")
         image = read_image(img_path)
         image = image.to(torch.float32)
+        label = self.img_labels.iloc[idx][1:5].astype(float).argmax()
         if self.id_as_label:
-            label = self.img_labels.iloc[idx][0]
-        else:
-            label = self.img_labels.iloc[idx][1:5].astype(float).argmax()
+            label = [self.img_labels.iloc[idx][0], label]
         age = self.img_labels.iloc[idx]['age']
         sex = self.img_labels.iloc[idx]['sex']
         if self.transform:
