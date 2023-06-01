@@ -112,22 +112,31 @@ class SkinLesionDataset(Dataset):
 DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
 DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
 
-test_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transforms.Normalize(DATA_MEANS, DATA_STD)])
+test_transform = transforms.Compose([
+    transforms.CenterCrop((450, 450)),
+    transforms.Resize((360, 360)),
+    transforms.Normalize(DATA_MEANS, DATA_STD),
+])
 
-train_transform = transforms.Compose([transforms.CenterCrop((360, 360)), transforms.RandomHorizontalFlip(),
-                                      transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33),
-                                                                   antialias=True),
-                                      transforms.Normalize(DATA_MEANS, DATA_STD), ])
+train_transform = transforms.Compose([
+    transforms.CenterCrop((450, 450)),
+    transforms.Resize((360, 360)),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=True),
+    transforms.Normalize(DATA_MEANS, DATA_STD),
+])
 
 
 def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False,
-                use_sample_probabilities=False):
+                use_sample_probabilities=False, force_test_transform=False):
     if dataset_name == "train":
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
         sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/sample_probabilities.csv"
         transform = train_transform
+        if force_test_transform:
+            transform = test_transform
     elif dataset_name == "test":
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
@@ -149,28 +158,3 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
     return SkinLesionDataset(csv_file, img_dir=img_dir, metadata_file=metadata_file, transform=transform,
                              include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label,
                              sample_probabilities_file=sample_probabilities_file)
-
-
-def dataset_mean_and_std():
-    # Adapted from: https://www.binarystudy.com/2022/04/how-to-normalize-image-dataset-inpytorch.html
-    data_set = SkinLesionDataset("./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth"
-                                 ".csv", metadata_file="./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv",
-                                 img_dir="./data/ISIC2018_Task3_Training_Input/")
-    # transform=transforms.Compose([transforms.Resize((32, 32), antialias=True)]))
-    data_loader = DataLoader(data_set, batch_size=64, shuffle=True, drop_last=True, pin_memory=False, num_workers=1)
-    cnt = 0
-    fst_moment = torch.empty(3)
-    snd_moment = torch.empty(3)
-
-    for images, _ in data_loader:
-        b, c, h, w = images.shape
-        nb_pixels = b * h * w
-        sum_ = torch.sum(images, dim=[0, 2, 3])
-        sum_of_square = torch.sum(images ** 2, dim=[0, 2, 3])
-        fst_moment = (cnt * fst_moment + sum_) / (cnt + nb_pixels)
-        snd_moment = (cnt * snd_moment + sum_of_square) / (cnt + nb_pixels)
-        cnt += nb_pixels
-
-    mean, std = fst_moment, torch.sqrt(snd_moment - fst_moment ** 2)
-
-    print("mean and std: \n", mean, std)
