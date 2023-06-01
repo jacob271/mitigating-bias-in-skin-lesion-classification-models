@@ -1,4 +1,4 @@
-from basic_vae_module import VAE
+from vae_module import VAE
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger

@@ -3,7 +3,7 @@ from pytorch_lightning import LightningModule
 from torch import nn
 from torch.nn import functional as F
 
-from components import (
+from vae_components import (
     resnet18_decoder,
     resnet18_encoder,
     resnet50_decoder,
