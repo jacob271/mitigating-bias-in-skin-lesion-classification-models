@@ -12,16 +12,8 @@ from vae_components import (
 
 
 class VAE(LightningModule):
-    """Standard VAE with Gaussian Prior and approx posterior.
+    """Standard VAE with Gaussian Prior and approx posterior."""
 
-    Model is available pretrained on different datasets:
-
-    Example::
-
-        # not pretrained
-        vae = VAE()
-
-    """
     def __init__(
         self,
         input_height: int,
@@ -32,7 +24,6 @@ class VAE(LightningModule):
         kl_coeff: float = 0.1,
         latent_dim: int = 256,
         lr: float = 1e-4,
-        **kwargs,
     ):
         """
         Args:

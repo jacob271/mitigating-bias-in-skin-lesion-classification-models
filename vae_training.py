@@ -42,5 +42,4 @@ def train_vae():
 
 if __name__ == "__main__":
     resnet_model, resnet_results = train_vae()
-
     print(resnet_results)
