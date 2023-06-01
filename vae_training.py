@@ -13,7 +13,7 @@ def train_vae():
     trainer = Trainer(
         accelerator="auto",
         devices=1,
-        max_epochs=180,
+        max_epochs=200,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="min", monitor="val_loss"
@@ -24,9 +24,9 @@ def train_vae():
     train_set = get_dataset("train", under_sampling=True)
     val_set = get_dataset("validation")
     test_set = get_dataset("test")
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=12, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
 
     model = VAE(input_height=360, enc_type="resnet18", enc_out_dim=512)
     trainer.fit(model, train_loader, val_loader)
