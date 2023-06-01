@@ -109,34 +109,37 @@ class SkinLesionDataset(Dataset):
         return selected_index
 
 
-DATA_MEANS = torch.tensor([194.7155, 139.2602, 145.4779])
-DATA_STD = torch.tensor([36.0167, 38.9894, 43.4381])
+DATA_MEANS = torch.tensor([192.1314, 141.6559, 147.6526])
+DATA_STD = torch.tensor([33.1019, 38.3609, 43.3686])
 
 test_transform = transforms.Compose([
     transforms.CenterCrop((450, 450)),
-    transforms.Resize((360, 360)),
+    transforms.Resize((360, 360), antialias=False),
     transforms.Normalize(DATA_MEANS, DATA_STD),
+])
+
+plain_transform = transforms.Compose([
+    transforms.CenterCrop((450, 450)),
+    transforms.Resize((360, 360), antialias=False),
 ])
 
 train_transform = transforms.Compose([
     transforms.CenterCrop((450, 450)),
-    transforms.Resize((360, 360)),
+    transforms.Resize((360, 360), antialias=False),
     transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=True),
+    transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=False),
     transforms.Normalize(DATA_MEANS, DATA_STD),
 ])
 
 
 def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False,
-                use_sample_probabilities=False, force_test_transform=False):
+                use_sample_probabilities=False, use_plain_transform=False):
     if dataset_name == "train":
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
         sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/sample_probabilities.csv"
         transform = train_transform
-        if force_test_transform:
-            transform = test_transform
     elif dataset_name == "test":
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
@@ -154,6 +157,9 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
 
     if not use_sample_probabilities:
         sample_probabilities_file = ""
+
+    if use_plain_transform:
+        transform = plain_transform
 
     return SkinLesionDataset(csv_file, img_dir=img_dir, metadata_file=metadata_file, transform=transform,
                              include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label,
