@@ -36,7 +36,7 @@ def train_resnet(debiasing=False):
     train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=debiasing)
     val_set = get_dataset("validation")
     test_set = get_dataset("test")
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=False, drop_last=False, pin_memory=False, num_workers=1)
+    train_loader = DataLoader(train_set, batch_size=32, shuffle=(not debiasing), drop_last=False, pin_memory=False, num_workers=1)
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
