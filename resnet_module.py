@@ -6,15 +6,15 @@ import pytorch_lightning as pl
 from torchvision import models
 
 
-class ResNetModule(pl.LightningModule):
+class ResNetModel(pl.LightningModule):
 
-    def __init__(self, pretrained=False, in_channels=3, num_classes=4, lr=3e-4):
-        super(ResNetModule, self).__init__()
+    def __init__(self, in_channels=3, num_classes=4, lr=3e-4):
+        super(ResNetModel, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.lr = lr
 
-        self.model = models.resnet18(pretrained=pretrained)
+        self.model = models.resnet18(weights=None)
 
         self.model.fc = nn.Sequential(
             nn.Linear(self.model.fc.in_features, 128),

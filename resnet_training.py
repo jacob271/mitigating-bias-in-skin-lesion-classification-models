@@ -7,7 +7,7 @@ from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import DataLoader
 
 from dataset import get_dataset
-from resnet_module import ResNetModule
+from resnet_module import ResNetModel
 
 wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 
@@ -25,7 +25,7 @@ def train_resnet(debiasing=False):
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
         accelerator="auto",
         devices=1,
-        max_epochs=180,
+        max_epochs=200,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
@@ -40,7 +40,7 @@ def train_resnet(debiasing=False):
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
 
-    model = ResNetModule()
+    model = ResNetModel()
     trainer.fit(model, train_loader, val_loader)
     model = ResNetModule.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
@@ -55,5 +55,5 @@ def train_resnet(debiasing=False):
 
 
 if __name__ == "__main__":
-    resnet_model, resnet_results = train_resnet(debiasing=True)
+    resnet_model, resnet_results = train_resnet(debiasing=False)
     print(resnet_results)
