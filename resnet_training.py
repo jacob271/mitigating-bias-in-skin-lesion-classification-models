@@ -47,7 +47,7 @@ def train_resnet(debiasing=False):
     )  # Load best checkpoint after training
 
     # Test best model on validation and test set
-    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    val_result = trainer.validate(model, dataloaders=val_loader, verbose=False)
     test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
     result = {"test": test_result, "val": val_result}
 

@@ -127,7 +127,7 @@ train_transform = transforms.Compose([
     transforms.CenterCrop((450, 450)),
     transforms.Resize((360, 360), antialias=False),
     transforms.RandomHorizontalFlip(),
-    transforms.RandomResizedCrop((360, 360), scale=(0.8, 1.0), ratio=(0.75, 1.33), antialias=False),
+    transforms.RandomRotation(degrees=15),
     transforms.Normalize(DATA_MEANS, DATA_STD),
 ])
 
