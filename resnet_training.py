@@ -42,7 +42,7 @@ def train_resnet(debiasing=False):
 
     model = ResNetModel()
     trainer.fit(model, train_loader, val_loader)
-    model = ResNetModule.load_from_checkpoint(
+    model = ResNetModel.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
     )  # Load best checkpoint after training
 
