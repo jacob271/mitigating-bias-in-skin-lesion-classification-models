@@ -25,7 +25,7 @@ def train_resnet(debiasing=False):
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
         accelerator="auto",
         devices=1,
-        max_epochs=200,
+        max_epochs=40,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="max", monitor="val_acc"
