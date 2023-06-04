@@ -34,7 +34,7 @@ def train_vae():
         trainer.checkpoint_callback.best_model_path
     )
 
-    val_result = trainer.test(model, dataloaders=val_loader, verbose=False)
+    val_result = trainer.validate(model, dataloaders=val_loader, verbose=False)
     test_result = trainer.test(model, dataloaders=test_loader, verbose=False)
 
     return model, {"val": val_result, "test": test_result}
