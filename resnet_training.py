@@ -3,7 +3,6 @@ import os
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
 import torchmetrics.classification
-from torch.utils.data import DataLoader
 from torchmetrics import ConfusionMatrix
 from pytorch_lightning.loggers import WandbLogger
 from torch.utils.data import DataLoader
@@ -73,7 +72,7 @@ def get_predictions(model, data_set_name="test"):
     )
 
     data_set_with_metadata = get_dataset(data_set_name, include_metadata=True)
-    data_loader = DataLoader(data_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
+    data_loader = DataLoader(data_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=0)
 
     all_labels = []
     for batch in data_loader:
@@ -181,7 +180,7 @@ if __name__ == "__main__":
     predictions, all_labels = get_predictions(resnet_model)
     confm_path = "conf_matrix.png"
     plot_confusion_matrix(predictions, all_labels, confm_path)
-    wandb.log({"confusion matrix": wandb.Image(conf_path)})
+    wandb.log({"confusion matrix": wandb.Image(confm_path)})
     gender_bias = calculate_gender_bias(predictions, all_labels)
     wandb.log(gender_bias)
     age_bias = calculate_age_bias(predictions, all_labels)
