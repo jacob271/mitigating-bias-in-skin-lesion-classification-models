@@ -49,7 +49,7 @@ def train_vae():
 
 def calculate_sample_probabilities(dataset_name, model, visualize_latent_variables=False):
     model = model.to(device)
-    data_set = get_dataset(dataset_name=dataset_name, id_as_label=True)
+    data_set = get_dataset(dataset_name=dataset_name, under_sampling=True,  id_as_label=True)
     
     data_loader = DataLoader(data_set, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
     latent_repr_chunks = []
