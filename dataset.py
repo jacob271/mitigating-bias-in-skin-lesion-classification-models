@@ -68,7 +68,7 @@ class SkinLesionDataset(Dataset):
                 metadata_sex.append(metadata[metadata['isic_id'] == isic_id]['sex'].values[0])
             
             if len(metadata_hairiness_df[metadata_hairiness_df['isic_id'] == isic_id]['high_hair_density'].values) == 0:
-                metadata_hairiness.append(0)
+                metadata_hairiness.append(-1)
             else:
                 metadata_hairiness.append(int(metadata_hairiness_df[metadata_hairiness_df['isic_id'] == isic_id]['high_hair_density'].values[0]))
 

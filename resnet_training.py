@@ -169,9 +169,38 @@ def calculate_age_bias(predictions, all_labels):
         else:
             print("WARNING: No samples for this age group")
 
-    results = {"accuracies": accuracies, "bias": variance(acc_list)}
     print(f"accuracies: {accuracies}")
     print(f"age_bias: {variance(acc_list)}")
+    results = {"accuracies": accuracies, "age_bias": variance(acc_list)}
+    return results
+
+
+def calculate_hairiness_bias(predictions, all_labels):
+    high_density_predictions = []
+    high_density_labels = []
+    low_density_predictions = []
+    low_density_labels = []
+    unknown_count = 0
+
+    for i in range(len(predictions)):
+        if all_labels[i][3][0] == 1:
+            high_density_predictions.append(torch.unsqueeze(predictions[i], dim=0))
+            high_density_labels.append(all_labels[i][0])
+        elif all_labels[i][3][0] == 0:
+            low_density_predictions.append(torch.unsqueeze(predictions[i], dim=0))
+            low_density_labels.append(all_labels[i][0])
+        else:
+            unknown_count += 1
+    print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
+
+    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
+    high_density_accuracy = metric(torch.cat(high_density_predictions), torch.cat(high_density_labels)).item()
+    low_density_accuracy = metric(torch.cat(low_density_predictions), torch.cat(low_density_labels)).item()
+    bias = variance([high_density_accuracy, low_density_accuracy])
+    results = {"high_density_acc": high_density_accuracy, "low_density_acc": low_density_accuracy, "hairiness_bias": bias}
+    print(f"high_density_acc: {high_density_accuracy}")
+    print(f"low_density_acc: {low_density_accuracy}")
+    print(f"hairiness_bias: {bias}")
     return results
 
 
@@ -184,6 +213,8 @@ if __name__ == "__main__":
     gender_bias = calculate_gender_bias(predictions, all_labels)
     wandb.log(gender_bias)
     age_bias = calculate_age_bias(predictions, all_labels)
-    wandb.log(age_bias)    
+    wandb.log(age_bias)
+    hairiness_bias = calculate_hairiness_bias(predictions, all_labels)
+    wandb.log(hairiness_bias)
     
     print(resnet_results)
