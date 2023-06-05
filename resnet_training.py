@@ -125,7 +125,7 @@ def calculate_gender_bias(predictions, all_labels):
     male_accuracy = metric(torch.cat(male_predictions), torch.cat(male_labels)).item()
     female_accuracy = metric(torch.cat(female_predictions), torch.cat(female_labels)).item()
     bias = variance([male_accuracy, female_accuracy])
-    results = {"male_acc": male_accuracy, "female_acc": female_accuracy, "bias": bias}
+    results = {"male_acc": male_accuracy, "female_acc": female_accuracy, "gender_bias": bias}
     print(f"male_acc: {male_accuracy}")
     print(f"female_acc: {female_accuracy}")
     print(f"bias: {bias}")
@@ -171,7 +171,7 @@ def calculate_age_bias(predictions, all_labels):
 
     results = {"accuracies": accuracies, "bias": variance(acc_list)}
     print(f"accuracies: {accuracies}")
-    print(f"bias: {variance(acc_list)}")
+    print(f"age_bias: {variance(acc_list)}")
     return results
 
 
