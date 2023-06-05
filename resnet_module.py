@@ -8,19 +8,15 @@ from torchvision import models
 
 class ResNetModel(pl.LightningModule):
 
-    def __init__(self, in_channels=3, num_classes=4, lr=3e-4):
+    def __init__(self, in_channels=3, num_classes=4, lr=1e-4):
         super(ResNetModel, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.lr = lr
 
         self.model = models.resnet18(weights=None)
-
-        self.model.fc = nn.Sequential(
-            nn.Linear(self.model.fc.in_features, 128),
-            nn.Dropout(0.3),
-            nn.Linear(128, self.num_classes)
-        )
+        num_ftrs = self.model.fc.in_features
+        self.model.fc = nn.Linear(num_ftrs, self.num_classes)
 
         self.loss_fn = nn.CrossEntropyLoss()
 
