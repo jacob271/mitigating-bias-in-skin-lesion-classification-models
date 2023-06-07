@@ -30,12 +30,13 @@ def train_resnet(debiasing=False):
 
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
-        accelerator="auto",
-        devices=1,
-        max_epochs=40,
+        accelerator="gpu",
+        devices=[3],
+        max_epochs=20,
         callbacks=[
             ModelCheckpoint(
-                save_weights_only=True, mode="max", monitor="val_acc"
+                save_weights_only=True, save_last=True
+                #save_weights_only=True, mode="max", monitor="val_acc"
             ),  # Save the best checkpoint based on the maximum val_acc recorded
         ],
         logger=wandb_logger
@@ -66,8 +67,8 @@ def get_predictions(model, data_set_name="test"):
     model.to(device)
     
     trainer = pl.Trainer(
-        accelerator="auto",
-        devices=1,
+        accelerator="gpu",
+        devices=[0],
         logger=False,
     )
 
