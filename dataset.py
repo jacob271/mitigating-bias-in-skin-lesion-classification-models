@@ -88,6 +88,11 @@ class SkinLesionDataset(Dataset):
 
     def __getitem__(self, idx):
         if self.use_sample_probabilities:
+            if  self.img_labels.iloc[idx, 0] != self.sample_probabilities[idx, 0]:
+                print(self.img_labels.iloc[idx, 0])
+                print(self.sample_probabilities[idx, 0])
+                print("ERROR")
+                raise Exception("Sample probabilities and image labels are not aligned")
             idx = self.get_random_index()
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0] + ".jpg")
         image = read_image(img_path)
@@ -150,7 +155,7 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
-        sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/sample_probabilities.csv"
+        sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/binary_sample_probabilities.csv"
         transform = train_transform
     elif dataset_name == "test":
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
