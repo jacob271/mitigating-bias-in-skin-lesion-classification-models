@@ -21,7 +21,8 @@ class SkinLesionDataset(Dataset):
         if sample_probabilities_file:
             self.use_sample_probabilities = True
         self.sample_probabilities = None
-        
+
+        self.num_classes = 2
 
         discarded_classes = ['AKIEC', 'DF', 'VASC', 'BCC', 'BKL']
         relevant_classes = ['MEL', 'NV']
@@ -91,7 +92,7 @@ class SkinLesionDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0] + ".jpg")
         image = read_image(img_path)
         image = image.to(torch.float32)
-        label = self.img_labels.iloc[idx][1:5].astype(float).argmax()
+        label = self.img_labels.iloc[idx][1:(self.num_classes + 1)].astype(float).argmax()
         if self.id_as_label:
             label = [self.img_labels.iloc[idx][0], label]
         age = self.img_labels.iloc[idx]['age']
