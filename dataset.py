@@ -45,11 +45,8 @@ class SkinLesionDataset(Dataset):
             sp_df = pd.read_csv(sample_probabilities_file)
             sp_df = sp_df[sp_df['isic_id'].isin(dataframe['image'])]
             sp_df = sp_df.reset_index(drop=True)
-            self.sample_probabilities = sp_df['sample_probability'].values
-            # Normalize probabilities to account for under sampling
-            self.sample_probabilities = self.sample_probabilities / np.sum(self.sample_probabilities)
-        
-                
+            self.sample_probabilities = sp_df
+
         metadata_sex = []
         metadata_age = []
         metadata_hairiness = []
@@ -121,7 +118,7 @@ class SkinLesionDataset(Dataset):
 
     def get_random_index(self):
         random_number = np.random.uniform(0, 1)
-        cumulative_probabilities = np.cumsum(self.sample_probabilities)
+        cumulative_probabilities = np.cumsum(self.sample_probabilities['sample_probabilities'].values)
         selected_index = np.searchsorted(cumulative_probabilities, random_number)
         return selected_index
 
