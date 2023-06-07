@@ -20,9 +20,9 @@ class ResNetModel(pl.LightningModule):
 
         self.loss_fn = nn.CrossEntropyLoss()
 
-        self.train_acc = torchmetrics.Accuracy(task="multiclass", num_classes=4)
-        self.val_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
-        self.test_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
+        self.train_acc = torchmetrics.Accuracy(task="multiclass", num_classes=num_classes)
+        self.val_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
+        self.test_acc = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
 
     def forward(self, x):
         return self.model(x)
