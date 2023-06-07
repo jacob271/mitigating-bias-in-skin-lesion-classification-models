@@ -42,8 +42,9 @@ class SkinLesionDataset(Dataset):
 
         # Set sample probabilities
         if self.use_sample_probabilities:
-            sp_df = pd.read_csv(sample_probabilities_file)
+            sp_df = pd.read_csv(sample_probabilities_file, index_col=False)
             sp_df = sp_df[sp_df['isic_id'].isin(dataframe['image'])]
+            sp_df = sp_df.drop(sp_df.columns[0], axis=1)
             sp_df = sp_df.reset_index(drop=True)
             self.sample_probabilities = sp_df
 
@@ -85,7 +86,9 @@ class SkinLesionDataset(Dataset):
 
     def __getitem__(self, idx):
         if self.use_sample_probabilities:
-            if  self.img_labels.iloc[idx, 0] != self.sample_probabilities[idx, 0]:
+            img_id1 = self.img_labels.iloc[idx, 0]
+            img_id2 = self.sample_probabilities.iloc[idx, 0]
+            if img_id1 != img_id2:
                 print(self.img_labels.iloc[idx, 0])
                 print(self.sample_probabilities[idx, 0])
                 print("ERROR")
@@ -118,7 +121,7 @@ class SkinLesionDataset(Dataset):
 
     def get_random_index(self):
         random_number = np.random.uniform(0, 1)
-        cumulative_probabilities = np.cumsum(self.sample_probabilities['sample_probabilities'].values)
+        cumulative_probabilities = np.cumsum(self.sample_probabilities['sample_probability'].values)
         selected_index = np.searchsorted(cumulative_probabilities, random_number)
         return selected_index
 
