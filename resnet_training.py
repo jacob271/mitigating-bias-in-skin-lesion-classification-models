@@ -1,4 +1,5 @@
 import os
+import sys
 
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
@@ -207,7 +208,7 @@ def calculate_hairiness_bias(predictions, all_labels, metric, num_classes=4):
 
 
 if __name__ == "__main__":
-    debiasing = False
+    debiasing = "--debias" in sys.argv
     metric = torchmetrics.classification.BinaryAccuracy()
     # metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     wandb.config.debiasing=debiasing
