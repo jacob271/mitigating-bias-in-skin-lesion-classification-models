@@ -162,7 +162,7 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
         sample_probabilities_file = ""
-        metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/hair_densities.csv"
+        metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_hair_densities.csv"
         transform = test_transform
     elif dataset_name == "validation":
         img_dir = "./data/ISIC2018_Task3_Validation_Input/"

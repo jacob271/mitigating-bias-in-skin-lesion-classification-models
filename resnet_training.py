@@ -10,6 +10,7 @@ import wandb
 import torch
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
 from statistics import variance
 
@@ -201,6 +202,7 @@ def calculate_hairiness_bias(predictions, all_labels, num_classes=4):
     high_density_accuracy = metric(torch.cat(high_density_predictions), torch.cat(high_density_labels)).item()
     low_density_accuracy = metric(torch.cat(low_density_predictions), torch.cat(low_density_labels)).item()
     bias = variance([high_density_accuracy, low_density_accuracy])
+
     results = {"high_density_acc": high_density_accuracy, "low_density_acc": low_density_accuracy, "hairiness_bias": bias}
     print(f"high_density_acc: {high_density_accuracy}")
     print(f"low_density_acc: {low_density_accuracy}")
@@ -209,8 +211,10 @@ def calculate_hairiness_bias(predictions, all_labels, num_classes=4):
 
 
 if __name__ == "__main__":
+    debiasing = False
+    wandb.config.debiasing=debiasing
     num_classes = 2
-    resnet_model, resnet_results = train_resnet(debiasing=False)
+    resnet_model, resnet_results = train_resnet(debiasing=debiasing)
     predictions, all_labels = get_predictions(resnet_model)
     confm_path = "conf_matrix.png"
     plot_confusion_matrix(predictions, all_labels, confm_path, num_classes=num_classes)
@@ -221,5 +225,5 @@ if __name__ == "__main__":
     wandb.log(age_bias)
     hairiness_bias = calculate_hairiness_bias(predictions, all_labels, num_classes=num_classes)
     wandb.log(hairiness_bias)
-    
     print(resnet_results)
+    
