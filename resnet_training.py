@@ -10,7 +10,6 @@ import wandb
 import torch
 import matplotlib.pyplot as plt
 import seaborn as sns
-import time
 
 from statistics import variance
 
@@ -108,7 +107,7 @@ def plot_confusion_matrix(predictions, all_labels, file_path="conf_ma.png", num_
     plt.savefig(file_path)
 
     
-def calculate_gender_bias(predictions, all_labels, num_classes=4):
+def calculate_gender_bias(predictions, all_labels, metric, num_classes=4):
     male_predictions = []
     male_labels = []
     female_predictions = []
@@ -126,7 +125,6 @@ def calculate_gender_bias(predictions, all_labels, num_classes=4):
             unknown_count += 1
     print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
 
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     male_accuracy = metric(torch.cat(male_predictions), torch.cat(male_labels)).item()
     female_accuracy = metric(torch.cat(female_predictions), torch.cat(female_labels)).item()
     bias = variance([male_accuracy, female_accuracy])
@@ -137,7 +135,7 @@ def calculate_gender_bias(predictions, all_labels, num_classes=4):
     return results
 
 
-def calculate_age_bias(predictions, all_labels, num_classes=4):
+def calculate_age_bias(predictions, all_labels, metric, num_classes=4):
     age_groups = ["upto30", "35to55", "60up", "unknown"]
     age_based_predictions = {"upto30": [], "35to55": [], "60up": [], "unknown": []}
     age_labels = {"upto30": [], "35to55": [], "60up": [], "unknown": []}
@@ -160,8 +158,6 @@ def calculate_age_bias(predictions, all_labels, num_classes=4):
         
     print(f"Observed {unknown_counter} ages out of {len(predictions)} to be unknown")
     
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
-
     accuracies = {}
     acc_list = []
     for age_group in age_groups:
@@ -180,7 +176,7 @@ def calculate_age_bias(predictions, all_labels, num_classes=4):
     return results
 
 
-def calculate_hairiness_bias(predictions, all_labels, num_classes=4):
+def calculate_hairiness_bias(predictions, all_labels, metric, num_classes=4):
     high_density_predictions = []
     high_density_labels = []
     low_density_predictions = []
@@ -212,18 +208,21 @@ def calculate_hairiness_bias(predictions, all_labels, num_classes=4):
 
 if __name__ == "__main__":
     debiasing = False
+    metric = torchmetrics.classification.BinaryAccuracy()
+    # metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     wandb.config.debiasing=debiasing
+    wandb.config.metric = "accuracy"
     num_classes = 2
     resnet_model, resnet_results = train_resnet(debiasing=debiasing)
     predictions, all_labels = get_predictions(resnet_model)
     confm_path = "conf_matrix.png"
     plot_confusion_matrix(predictions, all_labels, confm_path, num_classes=num_classes)
     wandb.log({"confusion matrix": wandb.Image(confm_path)})
-    gender_bias = calculate_gender_bias(predictions, all_labels, num_classes=num_classes)
+    gender_bias = calculate_gender_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(gender_bias)
-    age_bias = calculate_age_bias(predictions, all_labels, num_classes=num_classes)
+    age_bias = calculate_age_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(age_bias)
-    hairiness_bias = calculate_hairiness_bias(predictions, all_labels, num_classes=num_classes)
+    hairiness_bias = calculate_hairiness_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(hairiness_bias)
     print(resnet_results)
     
