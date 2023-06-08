@@ -171,9 +171,9 @@ def calculate_age_bias(predictions, all_labels, metric, num_classes=4):
         else:
             print("WARNING: No samples for this age group")
 
-    print(f"accuracies: {accuracies}")
+    print(f"age_accuracies: {accuracies}")
     print(f"age_bias: {variance(acc_list)}")
-    results = {"accuracies": accuracies, "age_bias": variance(acc_list)}
+    results = {"age_accuracies": accuracies, "age_bias": variance(acc_list)}
     return results
 
 
@@ -203,6 +203,40 @@ def calculate_hairiness_bias(predictions, all_labels, metric, num_classes=4):
     print(f"high_density_acc: {high_density_accuracy}")
     print(f"low_density_acc: {low_density_accuracy}")
     print(f"hairiness_bias: {bias}")
+    return results
+
+
+def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
+    skin_types = ["Type I", "Type II", "Type III", "Other"]
+    type_based_predictions = {"Type I": [], "Type II": [], "Type III": [], "Other": []}
+    type_based_labels = {"Type I": [], "Type II": [], "Type III": [], "Other": []}
+
+    unknown_counter = 0
+    for i in range(len(predictions)):
+        skin_type = all_labels[i][4][0].item()
+        if skin_type == "Other":
+            unknown_counter += 1
+
+        type_based_predictions[skin_type].append(torch.unsqueeze(predictions[i], dim=0))
+        type_based_labels[skin_type].append(all_labels[i][0])
+
+    print(f"Observed {unknown_counter} skin tones out of {len(predictions)} to be 'Other'")
+
+    accuracies = {}
+    acc_list = []
+    for skin_type in skin_types:
+        print(f"{skin_type} has {len(type_based_predictions[skin_type])} samples")
+        if skin_type == "Other":
+            continue
+        if len(type_based_predictions[skin_type]) > 0:
+            accuracies[skin_type] = metric(torch.cat(type_based_predictions[skin_type]), torch.cat(type_based_labels[skin_type])).item()
+            acc_list.append(accuracies[skin_type])
+        else:
+            print("WARNING: No samples for this skin tone group")
+
+    print(f"skin_accuracies: {accuracies}")
+    print(f"skin_tone_bias: {variance(acc_list)}")
+    results = {"skin_accuracies": accuracies, "skin_tone_bias": variance(acc_list)}
     return results
 
 

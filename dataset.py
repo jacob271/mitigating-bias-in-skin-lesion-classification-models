@@ -11,7 +11,8 @@ from torchvision.io import read_image
 class SkinLesionDataset(Dataset):
     def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None,
                  include_metadata=False, under_sampling=True, id_as_label=False, sample_probabilities_file="",
-                 metadata_hairiness_file=""):
+                 metadata_hairiness_file="",
+                 metadata_skin_tone_file=""):
         # under_sampling: if True, the dataset will be balanced by under-sampling the relevant classes
 
         self.id_as_label = id_as_label
@@ -51,11 +52,16 @@ class SkinLesionDataset(Dataset):
         metadata_sex = []
         metadata_age = []
         metadata_hairiness = []
+        metadata_skin_tone = []
         metadata = pd.read_csv(metadata_file)
         if metadata_hairiness_file:
             metadata_hairiness_df = pd.read_csv(metadata_hairiness_file)
         else:
             metadata_hairiness_df = pd.DataFrame(columns=['isic_id', 'hair_density', 'high_hair_density'])
+        if metadata_skin_tone_file:
+            metadata_skin_tone_df = pd.read_csv(metadata_skin_tone_file)
+        else:
+            metadata_skin_tone_df = pd.DataFrame(columns=['isic_id', 'skin_tone'])
         for isic_id in dataframe['image']:
             if len(metadata[metadata['isic_id'] == isic_id]['age_approx'].values) == 0:
                 metadata_age.append(-10)
@@ -71,9 +77,15 @@ class SkinLesionDataset(Dataset):
             else:
                 metadata_hairiness.append(int(metadata_hairiness_df[metadata_hairiness_df['isic_id'] == isic_id]['high_hair_density'].values[0]))
 
+            if len(metadata_skin_tone_df[metadata_skin_tone_df['isic_id'] == isic_id]['skin_tone'].values) == 0:
+                metadata_skin_tone.append("Other")
+            else:
+                metadata_skin_tone.append(metadata_skin_tone_df[metadata_skin_tone_df['isic_id'] == isic_id]['skin_tone'].values[0])
+
         dataframe['age'] = metadata_age
         dataframe['sex'] = metadata_sex
         dataframe['high_hair_density'] = metadata_hairiness
+        dataframe['skin_tone'] = metadata_skin_tone
 
         self.img_labels = dataframe
 
@@ -151,6 +163,7 @@ train_transform = transforms.Compose([
 def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False,
                 use_sample_probabilities=False, use_plain_transform=False):
     metadata_hairiness_file = ""
+    metadata_skin_tone_file = ""
     if dataset_name == "train":
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
@@ -163,6 +176,7 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
         csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
         sample_probabilities_file = ""
         metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_hair_densities.csv"
+        metadata_skin_tone_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_skin_tones.csv"
         transform = test_transform
     elif dataset_name == "validation":
         img_dir = "./data/ISIC2018_Task3_Validation_Input/"
@@ -181,4 +195,6 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
 
     return SkinLesionDataset(csv_file, img_dir=img_dir, metadata_file=metadata_file, transform=transform,
                              include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label,
-                             sample_probabilities_file=sample_probabilities_file, metadata_hairiness_file=metadata_hairiness_file)
+                             sample_probabilities_file=sample_probabilities_file,
+                             metadata_hairiness_file=metadata_hairiness_file,
+                             metadata_skin_tone_file=metadata_skin_tone_file)
