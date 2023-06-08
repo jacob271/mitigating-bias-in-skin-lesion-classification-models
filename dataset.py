@@ -115,12 +115,13 @@ class SkinLesionDataset(Dataset):
         age = self.img_labels.iloc[idx]['age']
         sex = self.img_labels.iloc[idx]['sex']
         hairiness = self.img_labels.iloc[idx]['high_hair_density']
+        skin_tone = self.img_labels.iloc[idx]['skin_tone']
         if self.transform:
             image = self.transform(image)
         if self.target_transform:
             label = self.target_transform(label)
         if self.include_metadata:
-            return image, [label, age, sex, hairiness]
+            return image, [label, age, sex, hairiness, skin_tone]
         return image, label
 
     def get_image_from_isic_id(self, isic_id):
