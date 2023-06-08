@@ -195,7 +195,6 @@ def calculate_hairiness_bias(predictions, all_labels, metric, num_classes=4):
             unknown_count += 1
     print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
 
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     high_density_accuracy = metric(torch.cat(high_density_predictions), torch.cat(high_density_labels)).item()
     low_density_accuracy = metric(torch.cat(low_density_predictions), torch.cat(low_density_labels)).item()
     bias = variance([high_density_accuracy, low_density_accuracy])
