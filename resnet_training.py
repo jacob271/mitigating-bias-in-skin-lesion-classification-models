@@ -213,7 +213,7 @@ def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
 
     unknown_counter = 0
     for i in range(len(predictions)):
-        skin_type = all_labels[i][4][0].item()
+        skin_type = all_labels[i][4][0]
         if skin_type == "Other":
             unknown_counter += 1
 
