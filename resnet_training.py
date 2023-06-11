@@ -1,4 +1,5 @@
 import os
+import sys
 
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
@@ -31,7 +32,7 @@ def train_resnet(debiasing=False):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
         accelerator="gpu",
-        devices=[3],
+        devices=[2],
         max_epochs=20,
         callbacks=[
             ModelCheckpoint(
@@ -87,16 +88,19 @@ def get_predictions(model, data_set_name="test"):
     return predictions, all_labels
 
 
-def plot_confusion_matrix(predictions, all_labels, file_path="conf_ma.png"):
+def plot_confusion_matrix(predictions, all_labels, file_path="conf_ma.png", num_classes=4):
     class_labels = []
     for label in all_labels:
         class_labels.append(label[0])
     class_labels = torch.cat(class_labels)
     
-    confm = ConfusionMatrix(task="multiclass", num_classes=4)
+    confm = ConfusionMatrix(task="multiclass", num_classes=num_classes)
     result = confm(predictions, class_labels)
 
-    labels = ["MEL", "NV", "BCC", "BKL"]
+    if num_classes == 4:
+        labels = ["MEL", "NV", "BCC", "BKL"]
+    else:
+        labels = ["MEL", "NV"]
     sns.heatmap(result, annot=True, cmap="Blues", xticklabels=labels, yticklabels=labels)
     plt.xlabel("Predicted")
     plt.ylabel("True")
@@ -104,7 +108,7 @@ def plot_confusion_matrix(predictions, all_labels, file_path="conf_ma.png"):
     plt.savefig(file_path)
 
     
-def calculate_gender_bias(predictions, all_labels):
+def calculate_gender_bias(predictions, all_labels, metric, num_classes=4):
     male_predictions = []
     male_labels = []
     female_predictions = []
@@ -122,7 +126,6 @@ def calculate_gender_bias(predictions, all_labels):
             unknown_count += 1
     print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
 
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
     male_accuracy = metric(torch.cat(male_predictions), torch.cat(male_labels)).item()
     female_accuracy = metric(torch.cat(female_predictions), torch.cat(female_labels)).item()
     bias = variance([male_accuracy, female_accuracy])
@@ -133,7 +136,7 @@ def calculate_gender_bias(predictions, all_labels):
     return results
 
 
-def calculate_age_bias(predictions, all_labels):
+def calculate_age_bias(predictions, all_labels, metric, num_classes=4):
     age_groups = ["upto30", "35to55", "60up", "unknown"]
     age_based_predictions = {"upto30": [], "35to55": [], "60up": [], "unknown": []}
     age_labels = {"upto30": [], "35to55": [], "60up": [], "unknown": []}
@@ -156,8 +159,6 @@ def calculate_age_bias(predictions, all_labels):
         
     print(f"Observed {unknown_counter} ages out of {len(predictions)} to be unknown")
     
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
-
     accuracies = {}
     acc_list = []
     for age_group in age_groups:
@@ -170,13 +171,13 @@ def calculate_age_bias(predictions, all_labels):
         else:
             print("WARNING: No samples for this age group")
 
-    print(f"accuracies: {accuracies}")
+    print(f"age_accuracies: {accuracies}")
     print(f"age_bias: {variance(acc_list)}")
-    results = {"accuracies": accuracies, "age_bias": variance(acc_list)}
+    results = {"age_accuracies": accuracies, "age_bias": variance(acc_list)}
     return results
 
 
-def calculate_hairiness_bias(predictions, all_labels):
+def calculate_hairiness_bias(predictions, all_labels, metric, num_classes=4):
     high_density_predictions = []
     high_density_labels = []
     low_density_predictions = []
@@ -194,10 +195,10 @@ def calculate_hairiness_bias(predictions, all_labels):
             unknown_count += 1
     print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
 
-    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=4, average='weighted')
     high_density_accuracy = metric(torch.cat(high_density_predictions), torch.cat(high_density_labels)).item()
     low_density_accuracy = metric(torch.cat(low_density_predictions), torch.cat(low_density_labels)).item()
     bias = variance([high_density_accuracy, low_density_accuracy])
+
     results = {"high_density_acc": high_density_accuracy, "low_density_acc": low_density_accuracy, "hairiness_bias": bias}
     print(f"high_density_acc: {high_density_accuracy}")
     print(f"low_density_acc: {low_density_accuracy}")
@@ -205,17 +206,57 @@ def calculate_hairiness_bias(predictions, all_labels):
     return results
 
 
+def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
+    skin_types = ["Type I", "Type II", "Type III", "Other"]
+    type_based_predictions = {"Type I": [], "Type II": [], "Type III": [], "Other": []}
+    type_based_labels = {"Type I": [], "Type II": [], "Type III": [], "Other": []}
+
+    unknown_counter = 0
+    for i in range(len(predictions)):
+        skin_type = all_labels[i][4][0]
+        if skin_type == "Other":
+            unknown_counter += 1
+
+        type_based_predictions[skin_type].append(torch.unsqueeze(predictions[i], dim=0))
+        type_based_labels[skin_type].append(all_labels[i][0])
+
+    print(f"Observed {unknown_counter} skin tones out of {len(predictions)} to be 'Other'")
+
+    accuracies = {}
+    acc_list = []
+    for skin_type in skin_types:
+        print(f"{skin_type} has {len(type_based_predictions[skin_type])} samples")
+        if skin_type == "Other":
+            continue
+        if len(type_based_predictions[skin_type]) > 0:
+            accuracies[skin_type] = metric(torch.cat(type_based_predictions[skin_type]), torch.cat(type_based_labels[skin_type])).item()
+            acc_list.append(accuracies[skin_type])
+        else:
+            print("WARNING: No samples for this skin tone group")
+
+    print(f"skin_accuracies: {accuracies}")
+    print(f"skin_tone_bias: {variance(acc_list)}")
+    results = {"skin_accuracies": accuracies, "skin_tone_bias": variance(acc_list)}
+    return results
+
+
 if __name__ == "__main__":
-    resnet_model, resnet_results = train_resnet(debiasing=False)
+    debiasing = "--debias" in sys.argv
+    metric = torchmetrics.classification.BinaryAccuracy()
+    # metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
+    wandb.config.debiasing=debiasing
+    wandb.config.pretrained = True
+    num_classes = 2
+    resnet_model, resnet_results = train_resnet(debiasing=debiasing)
     predictions, all_labels = get_predictions(resnet_model)
     confm_path = "conf_matrix.png"
-    plot_confusion_matrix(predictions, all_labels, confm_path)
+    plot_confusion_matrix(predictions, all_labels, confm_path, num_classes=num_classes)
     wandb.log({"confusion matrix": wandb.Image(confm_path)})
-    gender_bias = calculate_gender_bias(predictions, all_labels)
+    gender_bias = calculate_gender_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(gender_bias)
-    age_bias = calculate_age_bias(predictions, all_labels)
+    age_bias = calculate_age_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(age_bias)
-    hairiness_bias = calculate_hairiness_bias(predictions, all_labels)
+    hairiness_bias = calculate_hairiness_bias(predictions, all_labels, metric, num_classes=num_classes)
     wandb.log(hairiness_bias)
-    
     print(resnet_results)
+    

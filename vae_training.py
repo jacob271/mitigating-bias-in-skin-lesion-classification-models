@@ -47,7 +47,7 @@ def train_vae():
     return model, {"val": val_result, "test": test_result}
 
 
-def calculate_sample_probabilities(dataset_name, model, visualize_latent_variables=False):
+def calculate_sample_probabilities(dataset_name, model, visualize_latent_variables=False, num_classes=4):
     model = model.to(device)
     data_set = get_dataset(dataset_name=dataset_name, under_sampling=True,  id_as_label=True)
     
@@ -72,12 +72,12 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
         all_isic_ids[class_label].extend(ids)    
 
     latent_repr = []
-    for i in range(4):
+    for i in range(num_classes):
         latent_repr.append(torch.cat(latent_repr_lists[i], dim=0))
     
     sample_p = []
     
-    for j in range(4):
+    for j in range(num_classes):
         
         sample_p.append(np.zeros(latent_repr[j].shape[0]))
         bins = 10
@@ -95,7 +95,7 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
             hist_density = hist_density / np.sum(hist_density)
 
             p = 1.0/(hist_density[bin_idx-1] + smoothing_fac)
-            p = p/np.sum(p) * 0.25
+            p = p/np.sum(p) * (1.0/num_classes)
 
             # This is a bit different to what is described in the paper
             sample_p[j] = np.maximum(p, sample_p[j])
@@ -108,7 +108,7 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
                 plt.show()
 
 
-        sample_p[j] = sample_p[j]/np.sum(sample_p[j])*0.25
+        sample_p[j] = sample_p[j]/np.sum(sample_p[j])*(1.0/num_classes)
         print(np.sum(sample_p[j]))
     
     print(np.concatenate(sample_p))
@@ -117,8 +117,8 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
     return np.concatenate(sample_p), np.concatenate(all_isic_ids)
 
 if __name__ == "__main__":
-    resnet_model, resnet_results = train_vae()
-    sample_probs, isic_ids = calculate_sample_probabilities("train", resnet_model)
+    vae_model, vae_results = train_vae()
+    sample_probs, isic_ids = calculate_sample_probabilities("train", vae_model, num_classes=2)
     data_dict = {"isic_id": isic_ids, "sample_probability":sample_probs.tolist()}
     dataframe = pd.DataFrame(data_dict)
     wandb_table = wandb.Table(dataframe=dataframe)
@@ -133,4 +133,4 @@ if __name__ == "__main__":
     
     wandb.log_artifact(table_artifact)
     
-    print(resnet_results)
+    print(vae_results)
