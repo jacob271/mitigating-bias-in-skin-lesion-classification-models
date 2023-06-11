@@ -14,7 +14,7 @@ class ResNetModel(pl.LightningModule):
         self.num_classes = num_classes
         self.lr = lr
 
-        self.model = models.resnet18(pretrained=False)
+        self.model = models.resnet18(pretrained=True)
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Linear(num_ftrs, self.num_classes)
 

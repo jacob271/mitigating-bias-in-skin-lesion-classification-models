@@ -32,7 +32,7 @@ def train_resnet(debiasing=False):
     trainer = pl.Trainer(
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
         accelerator="gpu",
-        devices=[3],
+        devices=[2],
         max_epochs=20,
         callbacks=[
             ModelCheckpoint(
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     metric = torchmetrics.classification.BinaryAccuracy()
     # metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     wandb.config.debiasing=debiasing
-    wandb.config.metric = "accuracy"
+    wandb.config.pretrained = True
     num_classes = 2
     resnet_model, resnet_results = train_resnet(debiasing=debiasing)
     predictions, all_labels = get_predictions(resnet_model)

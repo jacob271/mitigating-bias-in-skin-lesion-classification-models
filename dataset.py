@@ -24,9 +24,12 @@ class SkinLesionDataset(Dataset):
         self.sample_probabilities = None
 
         self.num_classes = 2
+        discarded_classes = ['AKIEC', 'DF', 'VASC']
+        relevant_classes = ['MEL', 'NV', 'BCC', 'BKL']
+        if self.num_classes == 2:
+            discarded_classes = ['AKIEC', 'DF', 'VASC', 'BCC', 'BKL']
+            relevant_classes = ['MEL', 'NV']
 
-        discarded_classes = ['AKIEC', 'DF', 'VASC', 'BCC', 'BKL']
-        relevant_classes = ['MEL', 'NV']
         for discarded_class in discarded_classes:
             dataframe = dataframe[dataframe[discarded_class] != 1.0]
             dataframe = dataframe.drop(columns=[discarded_class])
