@@ -16,7 +16,7 @@ wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
 
-def train_vae():
+def train_vae(num_classes=2):
     trainer = Trainer(
         accelerator="auto",
         devices=1,
@@ -28,9 +28,9 @@ def train_vae():
         ],
         logger=wandb_logger
     )
-    train_set = get_dataset("train", under_sampling=True)
-    val_set = get_dataset("validation")
-    test_set = get_dataset("test")
+    train_set = get_dataset("train", under_sampling=True, num_classes=num_classes)
+    val_set = get_dataset("validation", num_classes=num_classes)
+    test_set = get_dataset("test", num_classes=num_classes)
     train_loader = DataLoader(train_set, batch_size=12, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
     val_loader = DataLoader(val_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
@@ -49,7 +49,7 @@ def train_vae():
 
 def calculate_sample_probabilities(dataset_name, model, visualize_latent_variables=False, num_classes=4):
     model = model.to(device)
-    data_set = get_dataset(dataset_name=dataset_name, under_sampling=True,  id_as_label=True)
+    data_set = get_dataset(dataset_name=dataset_name, under_sampling=True,  id_as_label=True, num_classes=num_classes)
     
     data_loader = DataLoader(data_set, batch_size=1, shuffle=False, drop_last=False, num_workers=1)
     latent_repr_chunks = []
@@ -117,8 +117,10 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
     return np.concatenate(sample_p), np.concatenate(all_isic_ids)
 
 if __name__ == "__main__":
-    vae_model, vae_results = train_vae()
-    sample_probs, isic_ids = calculate_sample_probabilities("train", vae_model, num_classes=2)
+    num_classes = 2
+    wandb.config.num_classes = num_classes
+    vae_model, vae_results = train_vae(num_classes=num_classes)
+    sample_probs, isic_ids = calculate_sample_probabilities("train", vae_model, num_classes=num_classes)
     data_dict = {"isic_id": isic_ids, "sample_probability":sample_probs.tolist()}
     dataframe = pd.DataFrame(data_dict)
     wandb_table = wandb.Table(dataframe=dataframe)
