@@ -12,7 +12,7 @@ class SkinLesionDataset(Dataset):
     def __init__(self, annotations_file, img_dir, metadata_file, transform=None, target_transform=None,
                  include_metadata=False, under_sampling=True, id_as_label=False, sample_probabilities_file="",
                  metadata_hairiness_file="",
-                 metadata_skin_tone_file=""):
+                 metadata_skin_tone_file="", num_classes=2):
         # under_sampling: if True, the dataset will be balanced by under-sampling the relevant classes
 
         self.id_as_label = id_as_label
@@ -23,7 +23,7 @@ class SkinLesionDataset(Dataset):
             self.use_sample_probabilities = True
         self.sample_probabilities = None
 
-        self.num_classes = 2
+        self.num_classes = num_classes
         discarded_classes = ['AKIEC', 'DF', 'VASC']
         relevant_classes = ['MEL', 'NV', 'BCC', 'BKL']
         if self.num_classes == 2:
@@ -152,8 +152,8 @@ test_transform = transforms.Compose([
 ])
 
 plain_transform = transforms.Compose([
-    transforms.CenterCrop((450, 450)),
-    transforms.Resize((360, 360), antialias=False),
+    #transforms.CenterCrop((450, 450)),
+    #transforms.Resize((360, 360), antialias=False),
 ])
 
 train_transform = transforms.Compose([
@@ -165,22 +165,29 @@ train_transform = transforms.Compose([
 
 
 def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_as_label=False,
-                use_sample_probabilities=False, use_plain_transform=False):
+                use_sample_probabilities=False, use_plain_transform=False, num_classes=2):
     metadata_hairiness_file = ""
     metadata_skin_tone_file = ""
     if dataset_name == "train":
         img_dir = "./data/ISIC2018_Task3_Training_Input/"
         metadata_file = "./data/ISIC2018_Task3_Training_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Training_GroundTruth/ISIC2018_Task3_Training_GroundTruth.csv"
-        sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/binary_sample_probabilities.csv"
+        if num_classes == 2:
+            sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/binary_sample_probabilities.csv"
+        else:
+            sample_probabilities_file = "./data/ISIC2018_Task3_Training_GroundTruth/sample_probabilities.csv"
         transform = train_transform
     elif dataset_name == "test":
         img_dir = "./data/ISIC2018_Task3_Test_Input/"
         metadata_file = "./data/ISIC2018_Task3_Test_GroundTruth/metadata.csv"
         csv_file = "./data/ISIC2018_Task3_Test_GroundTruth/ISIC2018_Task3_Test_GroundTruth.csv"
         sample_probabilities_file = ""
-        metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_hair_densities.csv"
-        metadata_skin_tone_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_skin_tones.csv"
+        if num_classes == 2:
+            metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_hair_densities.csv"
+            metadata_skin_tone_file = "./data/ISIC2018_Task3_Test_GroundTruth/binary_skin_tones.csv"
+        else:
+            metadata_hairiness_file = "./data/ISIC2018_Task3_Test_GroundTruth/hair_densities.csv"
+            metadata_skin_tone_file = "./data/ISIC2018_Task3_Test_GroundTruth/skin_tones.csv"           
         transform = test_transform
     elif dataset_name == "validation":
         img_dir = "./data/ISIC2018_Task3_Validation_Input/"
@@ -201,4 +208,5 @@ def get_dataset(dataset_name, include_metadata=False, under_sampling=False, id_a
                              include_metadata=include_metadata, under_sampling=under_sampling, id_as_label=id_as_label,
                              sample_probabilities_file=sample_probabilities_file,
                              metadata_hairiness_file=metadata_hairiness_file,
-                             metadata_skin_tone_file=metadata_skin_tone_file)
+                             metadata_skin_tone_file=metadata_skin_tone_file,
+                             num_classes=num_classes)

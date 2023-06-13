@@ -25,7 +25,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "./saved_models")
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
 
-def train_resnet(debiasing=False):
+def train_resnet(debiasing=False, num_classes=2):
     save_name = "ResNet"
     print("saving to ", os.path.join(CHECKPOINT_PATH, save_name))
 
@@ -42,9 +42,9 @@ def train_resnet(debiasing=False):
         ],
         logger=wandb_logger
     )
-    train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=debiasing)
-    val_set = get_dataset("validation")
-    test_set = get_dataset("test")
+    train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=debiasing, num_classes=num_classes)
+    val_set = get_dataset("validation", num_classes=num_classes)
+    test_set = get_dataset("test", num_classes=num_classes)
     train_loader = DataLoader(train_set, batch_size=32, shuffle=(not debiasing), drop_last=False, pin_memory=False, num_workers=1)
     val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
     test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
@@ -63,7 +63,7 @@ def train_resnet(debiasing=False):
     return model, result
 
 
-def get_predictions(model, data_set_name="test"):
+def get_predictions(model, data_set_name="test", num_classes=2):
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     model.to(device)
     
@@ -73,7 +73,7 @@ def get_predictions(model, data_set_name="test"):
         logger=False,
     )
 
-    data_set_with_metadata = get_dataset(data_set_name, include_metadata=True)
+    data_set_with_metadata = get_dataset(data_set_name, include_metadata=True, num_classes=num_classes)
     data_loader = DataLoader(data_set_with_metadata, batch_size=1, shuffle=False, drop_last=False, num_workers=0)
 
     all_labels = []
@@ -242,13 +242,12 @@ def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
 
 if __name__ == "__main__":
     debiasing = "--debias" in sys.argv
-    metric = torchmetrics.classification.BinaryAccuracy()
-    # metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
     wandb.config.debiasing=debiasing
     wandb.config.pretrained = True
     num_classes = 2
-    resnet_model, resnet_results = train_resnet(debiasing=debiasing)
-    predictions, all_labels = get_predictions(resnet_model)
+    metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
+    resnet_model, resnet_results = train_resnet(debiasing=debiasing, num_classes=num_classes)
+    predictions, all_labels = get_predictions(resnet_model, num_classes=num_classes)
     confm_path = "conf_matrix.png"
     plot_confusion_matrix(predictions, all_labels, confm_path, num_classes=num_classes)
     wandb.log({"confusion matrix": wandb.Image(confm_path)})
