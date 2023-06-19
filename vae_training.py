@@ -98,11 +98,30 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
             sample_p[j] = np.maximum(p, sample_p[j])
 
             if i <= 0 and visualize_latent_variables:
-                plt.bar(bin_edges[:-1], hist_density, width=np.diff(bin_edges), align='edge')
-                plt.xlabel('Bins')
-                plt.ylabel('Density')
-                plt.title(f"Histogram for latent variable {i + 1}")
+                
+                bins = 10
+                fig, ax = plt.subplots(figsize=(8, 6))
+                ax.bar(bin_edges[:-1], hist_density, width=np.diff(bin_edges), align='edge', alpha=0.7, color='#4c72b0')
+                ax.set_xlabel('Bins', fontsize=12)
+                ax.set_ylabel('Density', fontsize=12)
+                bin_edges[0] = 0.0
+                ax.set_xticks(bin_edges[1:-1])
+                ax.set_title(f"Histogram for Latent Variable {i + 1}", fontsize=14)# fontweight='bold'
+                ax.tick_params(axis='both', which='major', labelsize=10)
+                ax.tick_params(axis='both', which='minor', labelsize=8)
+                formatted_labels = [round(label, 4) for label in bin_edges[1:-1]]
+                ax.set_xticklabels(formatted_labels, rotation=45, ha='right')
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
+                ax.grid(axis='y', linestyle='--', alpha=0.5)
+                plt.tight_layout()
                 plt.show()
+                
+                #plt.bar(bin_edges[:-1], hist_density, width=np.diff(bin_edges), align='edge')
+                #plt.xlabel('Bins')
+                #plt.ylabel('Density')
+                #plt.title(f"Histogram for latent variable {i + 1}")
+                #plt.show()
 
         sample_p[j] = sample_p[j] / np.sum(sample_p[j]) * (1.0 / num_classes)
         print(np.sum(sample_p[j]))
