@@ -12,6 +12,8 @@ import torch
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from torchmetrics.classification import MulticlassAUROC
+
 from statistics import variance
 
 from dataset import get_dataset
@@ -84,7 +86,7 @@ def get_predictions(model, data_set_name="test", num_classes=2):
     #print(all_labels)
     predictions = trainer.predict(model, data_loader)
     predictions = torch.cat(predictions)
-    #print(predictions)
+    print(predictions)
     return predictions, all_labels
 
 
@@ -237,6 +239,51 @@ def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
     print(f"skin_accuracies: {accuracies}")
     print(f"skin_tone_bias: {variance(acc_list)}")
     results = {"skin_accuracies": accuracies, "skin_tone_bias": variance(acc_list)}
+    return results
+
+def get_auc_scores(predictions, all_labels, num_classes=4):
+    auroc = MulticlassAUROC(num_classes=2, average="weighted")
+   
+    type_based_predictions = {"Type I": [], "Type II": [], "Type III": []}
+    type_based_labels = {"Type I": [], "Type II": [], "Type III": []}
+
+    base_labels = []
+    for i in range(len(predictions)):
+        skin_type = all_labels[i][4][0]
+        #print(predictions[i])
+        type_based_predictions[skin_type].append(torch.unsqueeze(predictions[i], dim=0))
+        label = all_labels[i][0]
+        base_labels.append(label)
+        type_based_labels[skin_type].append(label)
+        
+    overall_auc = auroc(predictions, torch.cat(base_labels)).item()
+    type1_auc = auroc(torch.cat(type_based_predictions["Type I"]), torch.cat(type_based_labels["Type I"])).item()
+    type2_auc = auroc(torch.cat(type_based_predictions["Type II"]), torch.cat(type_based_labels["Type II"])).item()
+    type3_auc = auroc(torch.cat(type_based_predictions["Type III"]), torch.cat(type_based_labels["Type III"])).item()
+    
+    
+    high_density_predictions = []
+    high_density_labels = []
+    low_density_predictions = []
+    low_density_labels = []
+    unknown_count = 0
+
+    for i in range(len(predictions)):
+        if all_labels[i][3][0] == 1:
+            high_density_predictions.append(torch.unsqueeze(predictions[i], dim=0))
+            high_density_labels.append(all_labels[i][0])
+        elif all_labels[i][3][0] == 0:
+            low_density_predictions.append(torch.unsqueeze(predictions[i], dim=0))
+            low_density_labels.append(all_labels[i][0])
+        else:
+            unknown_count += 1
+    print(f"Observed {unknown_count} labels out of {len(predictions)} to be unknown")
+
+    hair_auc = auroc(torch.cat(high_density_predictions), torch.cat(high_density_labels)).item()
+    no_hair_auc = auroc(torch.cat(low_density_predictions), torch.cat(low_density_labels)).item()
+    
+    results = {"overall": overall_auc, "Type I": type1_auc, "Type II": type2_auc, "Type III": type3_auc, "Hair": hair_auc, "No Hair": no_hair_auc}
+    print(f"auc scores: {results}")
     return results
 
 

@@ -62,6 +62,5 @@ class ResNetModel(pl.LightningModule):
     def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
         imgs, labels = batch
         preds = self.model(imgs)
-
-        return torch.argmax(preds, dim=1)
-
+        # return torch.argmax(preds, dim=1)
+        return preds[:, :2]
