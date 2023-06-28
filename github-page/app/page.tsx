@@ -1,6 +1,49 @@
 import Image from 'next/image'
 
+
 export default function Home() {
+  return (
+      <div className="container mx-auto px-4 py-8">
+          <header className="text-center mb-8">
+              <h1 className="text-4xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
+              <p className="text-lg text-gray-500">A short description of about 200 characters.</p>
+          </header>
+
+          <main className="grid grid-cols-1 gap-8">
+              <section>
+                  <h2 className="text-2xl font-semibold mb-2">Heading 1</h2>
+                  <p>Paragraph 1</p>
+                  <Image src="/multi_accuracies.png" alt="Image 1" width={500} height={300} />
+              </section>
+
+              <section>
+                  <h2 className="text-2xl font-semibold mb-2">Heading 2</h2>
+                  <p>Paragraph 2</p>
+                  <Image src="/multi_biases.png" alt="Image 2" width={500} height={300} />
+              </section>
+
+              <section>
+                  <h2 className="text-2xl font-semibold mb-2">Heading 3</h2>
+                  <p>Paragraph 3</p>
+                  <Image src="/simple_binary_biases.png" alt="Image 3" width={500} height={300} />
+              </section>
+          </main>
+
+          <aside className="mt-8 flex justify-center">
+              <div className="sidebar">
+                  <a href="https://www.linkedin.com/in/jsjacobschaefer" target="_blank" rel="noopener noreferrer">
+                      <img src="/linkedin-banner.jpg" alt="LinkedIn Banner" width={200} height={100} />
+                  </a>
+                  <a href="https://jacobschaefer.de" target="_blank" rel="noopener noreferrer">
+                      <img src="/website-banner.jpg" alt="Website Banner" width={200} height={100} />
+                  </a>
+              </div>
+          </aside>
+      </div>
+  );
+};
+
+function Page() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
