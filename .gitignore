@@ -1,0 +1,7 @@
+/data/
+/.ipynb_checkpoints/
+/bias-skin-lesion-detection/
+/.idea/
+/wandb/
+/venv/
+/saved_models/
