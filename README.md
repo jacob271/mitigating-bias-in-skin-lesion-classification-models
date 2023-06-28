@@ -1,4 +1,10 @@
-# mitigating-bias-in-skin-lesion-detection-models
+# Mitigating Bias in Skin Lesion Classification Models using Learned Latent Structures
+
+This project provides an implementation of an adapted version of the bias mitigation method by [Amini et. al](https://dl.acm.org/doi/10.1145/3306618.3314243) which was developed as part of my bachelor thesis with the same title.
+
+## Abstract of the thesis
+
+Leveraging deep learning for early detection of skin cancer could help prevent deaths. Current skin lesion classification algorithms include biases and perform worse for patients with rarer skin features. An existing bias mitigation method automatically detects rare skin features in a dataset using a Variational Autoencoder and takes them into account when training a classifier. We propose an adaptation of this method that allows having multiple classes. We show that the adaptation is effective in experiment setups similar to those in previous research. Bias with respect to age and skin tone of the patient was successfully reduced by more than 45%, with a significance of p < 0.0005. Further, we observe that using transfer learning diminishes the bias mitigation effects while providing decreased biases on its own. Lastly, we find that the method is not effective for a more complex multi-class skin lesion classification task. We discuss potential reasons and areas for future work.
 
 ## Setup
 
