@@ -1,3 +1,6 @@
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
 /data/
 /.ipynb_checkpoints/
 /bias-skin-lesion-detection/
@@ -5,7 +8,6 @@
 /wandb/
 /venv/
 /saved_models/
-
 
 # dependencies
 /node_modules

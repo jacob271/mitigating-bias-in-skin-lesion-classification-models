@@ -15,13 +15,13 @@ export default function Home() {
           <section>
             <h2 className="text-2xl font-semibold mb-2">Results</h2>
             <p>Paragraph 1</p>
-            <Image src="/multi_accuracies.png" alt="Image 1" width={500} height={300} />
+            <img src="/multi_accuracies.png" alt="Image 1" width={500} height={300} />
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-2">Heading 2</h2>
             <p>Paragraph 2</p>
-            <Image src="/multi_biases.png" alt="Image 2" width={500} height={300} />
+            <img src="/multi_biases.png" alt="Image 2" width={500} height={300} />
           </section>
 
           <section>
