@@ -1,160 +1,83 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
+import ModalImage from 'react-modal-image';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   return (
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
-          <p className="text-lg text-gray-500">A short description of about 200 characters.</p>
-        </header>
+      <main className={`${inter.className}`}>
+        <div className="container max-w-3xl mx-auto px-4 py-8">
 
-        <main className="grid grid-cols-1 gap-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">Results</h2>
-            <p>Paragraph 1</p>
-            <img src="/multi_accuracies.png" alt="Image 1" width={500} height={300} />
+          <section className="mb-8">
+            <h1 className="text-4xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
+            <p className="text-lg text-gray-500">
+              On this page, you find a short summary of my bachelor thesis.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-2">Heading 2</h2>
-            <p>Paragraph 2</p>
-            <img src="/multi_biases.png" alt="Image 2" width={500} height={300} />
+            <h2 className="text-2xl font-semibold mb-2">Abstract</h2>
+            <p>
+              Leveraging deep learning for early detection of skin cancer could help prevent deaths. Current skin lesion classification algorithms include biases and perform worse for patients with rarer skin features. An existing bias mitigation method automatically detects rare skin features in a dataset using a Variational Autoencoder and takes them into account when training a classifier. We propose an adaptation of this method that allows having multiple classes. We show that the adaptation is effective in experiment setups similar to those in previous research. Bias with respect to age and skin tone of the patient was successfully reduced by more than 45%, with a significance of p &lt; 0.0005. Further, we observe that using transfer learning diminishes the bias mitigation effects while providing decreased biases on its own. Lastly, we find that the method is not effective for a more complex multi-class skin lesion classification task. We discuss potential reasons and areas for future work.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">Heading 3</h2>
-            <p>Paragraph 3</p>
-            <Image src="/simple_binary_biases.png" alt="Image 3" width={500} height={300} />
-          </section>
-        </main>
+          <main className="grid grid-cols-1 gap-8">
+            <section>
+              <h2 className="text-2xl font-semibold mb-2">Results</h2>
+              <p>Paragraph 1</p>
+              <ModalImage
+                  small="/multi_accuracies.png"
+                  large="/multi_accuracies.png"
+                  alt="Image 1"
+                  imageBackgroundColor={"#ffffff"}
+                  hideDownload={true}
+                  hideZoom={true}
+                  className="w-500 h-300 cursor-pointer"
+              />
+            </section>
 
-        <aside className="mt-8 flex justify-center">
-          <div className="sidebar">
-            <a href="https://www.linkedin.com/in/jsjacobschaefer" target="_blank" rel="noopener noreferrer">
-              <img src="/linkedin-banner.jpg" alt="LinkedIn Banner" width={200} height={100} />
-            </a>
-            <a href="https://jacobschaefer.de" target="_blank" rel="noopener noreferrer">
-              <img src="/website-banner.jpg" alt="Website Banner" width={200} height={100} />
-            </a>
-          </div>
-        </aside>
-      </div>
+            <section>
+              <h2 className="text-2xl font-semibold mb-2">Heading 2</h2>
+              <p>Paragraph 2</p>
+              <ModalImage
+                  small="/multi_biases.png"
+                  large="/multi_biases.png"
+                  alt="Image 1"
+                  imageBackgroundColor={"#ffffff"}
+                  hideDownload={true}
+                  hideZoom={true}
+                  className="w-500 h-300 cursor-pointer"
+              />
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-semibold mb-2">Heading 3</h2>
+              <p>Paragraph 3</p>
+              <ModalImage
+                  small="/simple_binary_biases.png"
+                  large="/simple_binary_biases.png"
+                  alt="Image 1"
+                  imageBackgroundColor={"#ffffff"}
+                  hideDownload={true}
+                  hideZoom={true}
+                  className="w-500 h-300 cursor-pointer"
+              />
+            </section>
+          </main>
+
+          <aside className="mt-8 flex justify-center">
+            <div className="sidebar">
+              <a href="https://www.linkedin.com/in/jsjacobschaefer" target="_blank" rel="noopener noreferrer">
+                <Image src="/linkedin-banner.jpg" alt="LinkedIn Banner" width={200} height={100} />
+              </a>
+              <a href="https://jacobschaefer.de" target="_blank" rel="noopener noreferrer">
+                <Image src="/website-banner.jpg" alt="Website Banner" width={200} height={100} />
+              </a>
+            </div>
+          </aside>
+        </div>
+      </main>
   );
 };
-
-function Page() {
-  return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
