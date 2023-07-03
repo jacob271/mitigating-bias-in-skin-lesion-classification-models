@@ -75,9 +75,9 @@ export default function Home() {
 
             <p>
               Additionally, we measured bias, which we define as the variance of weighted accuracies for the different classes of an attribute.
-              We observe that we don't have much bias with respect to sex in the first place. This can be explained by the fact that the dataset is balanced with respect to this attribute.
+              We observe that we don&apos;t have much bias with respect to sex in the first place. This can be explained by the fact that the dataset is balanced with respect to this attribute.
               With bias mitigation applied, the amount of bias does not change significantly.
-              For the attribute visible hair, we oberve a slight decrease in bias. However, the decrease is not significant.
+              For the attribute visible hair, we observe a slight decrease in bias. However, the decrease is not significant.
             </p>
             <ModalImage
                 small="/simple_binary_biases.png"
