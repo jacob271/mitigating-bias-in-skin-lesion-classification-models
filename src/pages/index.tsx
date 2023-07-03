@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import ModalImage from 'react-modal-image';
 
@@ -10,21 +9,21 @@ export default function Home() {
         <div className="container max-w-3xl mx-auto px-4 py-8">
 
           <section className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
+            <h1 className="text-5xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
             <p className="text-lg text-gray-500">
               On this page, you find a short summary of my bachelor thesis.
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-2">Abstract</h2>
+            <h2 className="text-3xl font-semibold mb-4">Abstract</h2>
             <p>
               Leveraging deep learning for early detection of skin cancer could help prevent deaths. Current skin lesion classification algorithms include biases and perform worse for patients with rarer skin features. An existing bias mitigation method automatically detects rare skin features in a dataset using a Variational Autoencoder and takes them into account when training a classifier. We propose an adaptation of this method that allows having multiple classes. We show that the adaptation is effective in experiment setups similar to those in previous research. Bias with respect to age and skin tone of the patient was successfully reduced by more than 45%, with a significance of p &lt; 0.0005. Further, we observe that using transfer learning diminishes the bias mitigation effects while providing decreased biases on its own. Lastly, we find that the method is not effective for a more complex multi-class skin lesion classification task. We discuss potential reasons and areas for future work.
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-2">Bias Mitigation Method</h2>
+            <h2 className="text-3xl font-semibold mb-4">Bias Mitigation Method</h2>
             <p>
               We applied an adapted version of the bias mitigation method from Amini et. al to a skin lesion classification task.
             </p>
@@ -36,11 +35,10 @@ export default function Home() {
             <ModalImage
                 small="/vae_architecture.svg"
                 large="/vae_architecture.svg"
-                alt="Image 1"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
-                className="w-500 h-300 cursor-pointer mb-2 mt-2"
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
             />
             <p>
               The latent space is a lower-dimensional representation of the images which we use to determine images with rare skin features.
@@ -52,7 +50,7 @@ export default function Home() {
             </p>
           </section>
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold mb-2">Comparison to Related Work</h2>
+            <h2 className="text-3xl font-semibold mb-4">Comparison to Related Work</h2>
             <p>
               We performed an experiment where we follow a similar experiment setup as Sauman Das.
               we consider a skin lesion classification task with two classes. To evaluate the bias mitigation effect, we trained the model twice, once with the bias mitigation method and once without.
@@ -66,11 +64,10 @@ export default function Home() {
             <ModalImage
                 small="/simple_binary_accuracies.png"
                 large="/simple_binary_accuracies.png"
-                alt="Image 1"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
-                className="w-500 h-300 cursor-pointer mb-2 mt-2"
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
             />
 
             <p>
@@ -82,11 +79,10 @@ export default function Home() {
             <ModalImage
                 small="/simple_binary_biases.png"
                 large="/simple_binary_biases.png"
-                alt="Image 1"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
-                className="w-500 h-300 cursor-pointer mb-2 mt-2"
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
             />
             <p>
               The last two attributes age and skin tone are more interesting. We observe a significant decrease in bias for both attributes.
@@ -96,48 +92,68 @@ export default function Home() {
               Overall, we showed with this experiment that the bias mitigation method is effective in a setup similar to related work.
             </p>
           </section>
-          <section>
-            <h2 className="text-2xl font-semibold mb-2">Heading 2</h2>
-            <p>Paragraph 2</p>
+          <section className="mb-8">
+            <h2 className="text-3xl font-semibold mb-4">Effects of Using Transfer Learning</h2>
+            <p>
+                Transfer learning is used in many deep learning applications to improve the performance of a model.
+                Thus, we wanted to find out how using transfer learning effects the bias mitigation method.
+            </p>
+            <p>
+                To do so, we performed an experiment where we trained the classifier with transfer learning. Once, with additional bias mitigation and once without.
+                As in the previous experiment, we evaluated weighted accuracies and biases.
+            </p>
+              <p>
+                  As expected, using transfer learning improves the overall weighted accuracy in comparison to not using transfer learning.
+              </p>
             <ModalImage
-                small="/multi_biases.png"
-                large="/multi_biases.png"
-                alt="Image 1"
+                small="/transfer_with_binary_accuracies.png"
+                large="/transfer_with_binary_accuracies.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
-                className="w-500 h-300 cursor-pointer mb-2 mt-2"
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
+            />
+              <p>
+                  On top of that, we observe that using transfer learning and bias mitigation improves the overall weighted accuracy even further.
+              </p>
+              <p>
+                  When taking a look at the biases below, we observe that using transfer learning alone leads to a decrease in bias.
+                  However, additionally applying bias mitigation no longer leads to a significant decrease in bias.
+              </p>
+            <ModalImage
+                small="/transfer_with_binary_bias.png"
+                large="/transfer_with_binary_bias.png"
+                imageBackgroundColor={"#ffffff"}
+                hideDownload={true}
+                hideZoom={true}
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
+            />
+              <p>
+                  To conclude, we showed that using transfer learning leads to reduced bias and improved weighted accuracy.
+                  However, the bias mitigation method is no longer as effective.
+              </p>
+
+          </section>
+          <section className="mb-8">
+            <h2 className="text-3xl font-semibold mb-4">Bias Mitigation for Complex Multi-Class classification task</h2>
+            <p>
+                Lastly, we applied the method to a more complex classification task with four classes.
+                With this setup, the bias mitigation method was not able to improve the performance or reduce bias.
+            </p>
+              <p>
+                  Potential reasons for that include that the dataset was to small in order to extract meaningful information from the latent space of a Variational Autoencoder.
+                  Future work, could investigate if using a separate Variational Autoencoder for each class could improve the bias mitigation effect.
+                  Another promising approach could be to perform thorough hyperparameter tuning.
+              </p>
+            <ModalImage
+                small="/multi_biases.png"
+                large="/multi_biases.png"
+                imageBackgroundColor={"#ffffff"}
+                hideDownload={true}
+                hideZoom={true}
+                className="w-500 h-300 cursor-pointer mb-4 mt-4"
             />
           </section>
-
-          <main className="grid grid-cols-1 gap-8">
-
-
-            <section>
-              <h2 className="text-2xl font-semibold mb-2">Heading 3</h2>
-              <p>Paragraph 3</p>
-              <ModalImage
-                  small="/simple_binary_biases.png"
-                  large="/simple_binary_biases.png"
-                  alt="Image 1"
-                  imageBackgroundColor={"#ffffff"}
-                  hideDownload={true}
-                  hideZoom={true}
-                  className="w-500 h-300 cursor-pointer mb-2 mt-2"
-              />
-            </section>
-          </main>
-
-          <aside className="mt-8 flex justify-center">
-            <div className="sidebar">
-              <a href="https://www.linkedin.com/in/jsjacobschaefer" target="_blank" rel="noopener noreferrer">
-                <Image src="/linkedin-banner.jpg" alt="LinkedIn Banner" width={200} height={100} />
-              </a>
-              <a href="https://jacobschaefer.de" target="_blank" rel="noopener noreferrer">
-                <Image src="/website-banner.jpg" alt="Website Banner" width={200} height={100} />
-              </a>
-            </div>
-          </aside>
         </div>
       </main>
   );
