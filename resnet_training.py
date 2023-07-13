@@ -37,7 +37,7 @@ def train_resnet(debiasing=False, num_classes=2):
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, save_last=True
-                #save_weights_only=True, mode="max", monitor="val_acc"
+                # save_weights_only=True, mode="max", monitor="val_acc"
             ),  # Save the best checkpoint based on the maximum val_acc recorded
         ],
         logger=wandb_logger
@@ -81,10 +81,8 @@ def get_predictions(model, data_set_name="test", num_classes=2):
         imgs, labels = batch
         all_labels.append(labels)
 
-    #print(all_labels)
     predictions = trainer.predict(model, data_loader)
     predictions = torch.cat(predictions)
-    #print(predictions)
     return predictions, all_labels
 
 

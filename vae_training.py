@@ -17,6 +17,7 @@ device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("
 
 
 def train_vae(num_classes=2):
+    # TODO: Remove magic numbers
     trainer = Trainer(
         accelerator="auto",
         devices=1,
@@ -117,12 +118,6 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
                 plt.tight_layout()
                 plt.show()
                 
-                #plt.bar(bin_edges[:-1], hist_density, width=np.diff(bin_edges), align='edge')
-                #plt.xlabel('Bins')
-                #plt.ylabel('Density')
-                #plt.title(f"Histogram for latent variable {i + 1}")
-                #plt.show()
-
         sample_p[j] = sample_p[j] / np.sum(sample_p[j]) * (1.0 / num_classes)
         print(np.sum(sample_p[j]))
 
