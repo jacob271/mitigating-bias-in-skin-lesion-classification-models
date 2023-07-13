@@ -129,7 +129,6 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
 
 
 if __name__ == "__main__":
-    # parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--num_classes", type=int, default=2, help="number of classes")
     parser.add_argument("--num_epochs", type=int, default=200, help="number of epochs")

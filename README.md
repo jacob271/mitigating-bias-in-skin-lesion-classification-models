@@ -83,7 +83,7 @@ You can now decide whether you want to train a classifier based on the ResNet18 
 
 Run `python3.10 resnet_training.py --help` to see all available parameters.
 
-You could run for instance `python3.10 resnet_training.py --num_classes 2 --use_transfer_learning --use_debiasing` to train a classifier with transfer learning and bias mitigation for the binary classification task.
+You could run for instance `python3.10 resnet_training.py --num_classes 2 --use_transfer_learning False --use_debiasing True` to train a classifier with transfer learning and bias mitigation for the binary classification task.
 
 Feel free to change the architecture and experiment with your own models.
 
