@@ -8,13 +8,13 @@ from torchvision import models
 
 class ResNetModel(pl.LightningModule):
 
-    def __init__(self, in_channels=3, num_classes=4, lr=1e-4):
+    def __init__(self, in_channels=3, num_classes=4, lr=1e-4, transfer_learning=False):
         super(ResNetModel, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.lr = lr
 
-        self.model = models.resnet18(pretrained=True)
+        self.model = models.resnet18(pretrained=transfer_learning)
         num_ftrs = self.model.fc.in_features
         self.model.fc = nn.Linear(num_ftrs, self.num_classes)
 

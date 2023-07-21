@@ -1,5 +1,5 @@
+import argparse
 import os
-import sys
 
 from pytorch_lightning.callbacks import ModelCheckpoint
 import pytorch_lightning as pl
@@ -25,7 +25,7 @@ CHECKPOINT_PATH = os.environ.get("PATH_CHECKPOINT", "./saved_models")
 os.makedirs(CHECKPOINT_PATH, exist_ok=True)
 
 
-def train_resnet(debiasing=False, num_classes=2):
+def train_resnet(debiasing=False, num_classes=2, transfer_learning=False, num_epochs=20, batch_size=32, lr=1e-4):
     save_name = "ResNet"
     print("saving to ", os.path.join(CHECKPOINT_PATH, save_name))
 
@@ -33,11 +33,11 @@ def train_resnet(debiasing=False, num_classes=2):
         default_root_dir=os.path.join(CHECKPOINT_PATH, save_name),
         accelerator="gpu",
         devices=[2],
-        max_epochs=20,
+        max_epochs=num_epochs,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, save_last=True
-                #save_weights_only=True, mode="max", monitor="val_acc"
+                # save_weights_only=True, mode="max", monitor="val_acc"
             ),  # Save the best checkpoint based on the maximum val_acc recorded
         ],
         logger=wandb_logger
@@ -45,11 +45,11 @@ def train_resnet(debiasing=False, num_classes=2):
     train_set = get_dataset("train", under_sampling=True, use_sample_probabilities=debiasing, num_classes=num_classes)
     val_set = get_dataset("validation", num_classes=num_classes)
     test_set = get_dataset("test", num_classes=num_classes)
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=(not debiasing), drop_last=False, pin_memory=False, num_workers=1)
-    val_loader = DataLoader(val_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=32, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=(not debiasing), drop_last=False, pin_memory=False, num_workers=1)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=False, num_workers=4)
 
-    model = ResNetModel()
+    model = ResNetModel(num_classes=num_classes, lr=lr, transfer_learning=transfer_learning)
     trainer.fit(model, train_loader, val_loader)
     model = ResNetModel.load_from_checkpoint(
         trainer.checkpoint_callback.best_model_path
@@ -81,10 +81,8 @@ def get_predictions(model, data_set_name="test", num_classes=2):
         imgs, labels = batch
         all_labels.append(labels)
 
-    #print(all_labels)
     predictions = trainer.predict(model, data_loader)
     predictions = torch.cat(predictions)
-    #print(predictions)
     return predictions, all_labels
 
 
@@ -241,12 +239,20 @@ def calculate_skin_tone_bias(predictions, all_labels, metric, num_classes=4):
 
 
 if __name__ == "__main__":
-    debiasing = "--debias" in sys.argv
-    wandb.config.debiasing=debiasing
-    wandb.config.pretrained = True
-    num_classes = 2
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--use_debiasing', type=bool, default=False, help='use debiasing')
+    parser.add_argument('--num_classes', type=int, default=2, help='number of classes')
+    parser.add_argument('--transfer_learning', type=bool, default=False, help='use transfer learning')
+    parser.add_argument('--num_epochs', type=int, default=20, help='number of epochs')
+    parser.add_argument('--batch_size', type=int, default=32, help='batch size')
+    parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
+    args = parser.parse_args()
+
+    wandb.config.debiasing=args.use_debiasing
+    wandb.config.pretrained = args.transfer_learning
+    num_classes = args.num_classes
     metric = torchmetrics.classification.MulticlassAccuracy(num_classes=num_classes, average='weighted')
-    resnet_model, resnet_results = train_resnet(debiasing=debiasing, num_classes=num_classes)
+    resnet_model, resnet_results = train_resnet(debiasing=args.use_debiasing, num_classes=num_classes, transfer_learning=args.transfer_learning, num_epochs=args.num_epochs, batch_size=args.batch_size, lr=args.lr)
     predictions, all_labels = get_predictions(resnet_model, num_classes=num_classes)
     confm_path = "conf_matrix.png"
     plot_confusion_matrix(predictions, all_labels, confm_path, num_classes=num_classes)

@@ -1,3 +1,5 @@
+import argparse
+
 from vae_module import VAE
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -16,11 +18,11 @@ wandb_logger = WandbLogger(project="bias-skin-lesion-detection")
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
 
-def train_vae(num_classes=2):
+def train_vae(num_classes=2, num_epochs=200, batch_size=12):
     trainer = Trainer(
         accelerator="auto",
         devices=1,
-        max_epochs=200,
+        max_epochs=num_epochs,
         callbacks=[
             ModelCheckpoint(
                 save_weights_only=True, mode="min", monitor="val_loss"
@@ -31,9 +33,9 @@ def train_vae(num_classes=2):
     train_set = get_dataset("train", under_sampling=True, num_classes=num_classes)
     val_set = get_dataset("validation", num_classes=num_classes)
     test_set = get_dataset("test", num_classes=num_classes)
-    train_loader = DataLoader(train_set, batch_size=12, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
-    test_loader = DataLoader(test_set, batch_size=12, shuffle=False, drop_last=False, num_workers=4)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, drop_last=True, pin_memory=False, num_workers=4)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, drop_last=False, num_workers=4)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, drop_last=False, num_workers=4)
 
     model = VAE(input_height=360, enc_type="resnet18", enc_out_dim=512)
     trainer.fit(model, train_loader, val_loader)
@@ -117,12 +119,6 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
                 plt.tight_layout()
                 plt.show()
                 
-                #plt.bar(bin_edges[:-1], hist_density, width=np.diff(bin_edges), align='edge')
-                #plt.xlabel('Bins')
-                #plt.ylabel('Density')
-                #plt.title(f"Histogram for latent variable {i + 1}")
-                #plt.show()
-
         sample_p[j] = sample_p[j] / np.sum(sample_p[j]) * (1.0 / num_classes)
         print(np.sum(sample_p[j]))
 
@@ -133,9 +129,17 @@ def calculate_sample_probabilities(dataset_name, model, visualize_latent_variabl
 
 
 if __name__ == "__main__":
-    num_classes = 2
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--num_classes", type=int, default=2, help="number of classes")
+    parser.add_argument("--num_epochs", type=int, default=200, help="number of epochs")
+    parser.add_argument("--batch_size", type=int, default=12, help="batch size")
+    args = parser.parse_args()
+
+    num_classes = args.num_classes
+    num_epochs = args.num_epochs
+    batch_size = args.batch_size
     wandb.config.num_classes = num_classes
-    vae_model, vae_results = train_vae(num_classes=num_classes)
+    vae_model, vae_results = train_vae(num_classes=num_classes, num_epochs=num_epochs, batch_size=batch_size)
     sample_probs, isic_ids = calculate_sample_probabilities("train", vae_model, num_classes=num_classes)
     data_dict = {"isic_id": isic_ids, "sample_probability": sample_probs.tolist()}
     dataframe = pd.DataFrame(data_dict)
