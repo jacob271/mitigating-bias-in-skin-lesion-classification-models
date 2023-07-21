@@ -35,8 +35,8 @@ export default function Home() {
 
               </p>
             <ModalImage
-                small="/vae_architecture.svg"
-                large="/vae_architecture.svg"
+                small="/mitigating-bias-in-skin-lesion-classification-models/vae_architecture.svg"
+                large="/mitigating-bias-in-skin-lesion-classification-models/vae_architecture.svg"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
@@ -64,8 +64,8 @@ export default function Home() {
             </p>
 
             <ModalImage
-                small="/simple_binary_accuracies.png"
-                large="/simple_binary_accuracies.png"
+                small="/mitigating-bias-in-skin-lesion-classification-models/simple_binary_accuracies.png"
+                large="/mitigating-bias-in-skin-lesion-classification-models/simple_binary_accuracies.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
@@ -79,8 +79,8 @@ export default function Home() {
               For the attribute visible hair, we observe a slight decrease in bias. However, the decrease is not significant.
             </p>
             <ModalImage
-                small="/simple_binary_biases.png"
-                large="/simple_binary_biases.png"
+                small="/mitigating-bias-in-skin-lesion-classification-models/simple_binary_biases.png"
+                large="/mitigating-bias-in-skin-lesion-classification-models/simple_binary_biases.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
@@ -108,8 +108,8 @@ export default function Home() {
                   As expected, using transfer learning improves the overall weighted accuracy in comparison to not using transfer learning.
               </p>
             <ModalImage
-                small="/transfer_with_binary_accuracies.png"
-                large="/transfer_with_binary_accuracies.png"
+                small="/mitigating-bias-in-skin-lesion-classification-models/transfer_with_binary_accuracies.png"
+                large="/mitigating-bias-in-skin-lesion-classification-models/transfer_with_binary_accuracies.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
@@ -123,8 +123,8 @@ export default function Home() {
                   However, additionally applying bias mitigation no longer leads to a significant decrease in bias.
               </p>
             <ModalImage
-                small="/transfer_with_binary_bias.png"
-                large="/transfer_with_binary_bias.png"
+                small="/mitigating-bias-in-skin-lesion-classification-models/transfer_with_binary_bias.png"
+                large="/mitigating-bias-in-skin-lesion-classification-models/transfer_with_binary_bias.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
@@ -148,8 +148,8 @@ export default function Home() {
                   Another promising approach could be to perform thorough hyperparameter tuning.
               </p>
             <ModalImage
-                small="/multi_biases.png"
-                large="/multi_biases.png"
+                small="/mitigating-bias-in-skin-lesion-classification-models/multi_biases.png"
+                large="/mitigating-bias-in-skin-lesion-classification-models/multi_biases.png"
                 imageBackgroundColor={"#ffffff"}
                 hideDownload={true}
                 hideZoom={true}
