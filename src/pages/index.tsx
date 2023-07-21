@@ -60,7 +60,6 @@ export default function Home() {
             </p>
             <p>
               As shown in the diagram below, we observe that the bias mitigation method improves the overall weighted accuracy by almost 7% on average, while also improving the weighted accuracy for every single attribute.
-  the weighted accuracy for every single attribute.
             </p>
 
             <ModalImage
