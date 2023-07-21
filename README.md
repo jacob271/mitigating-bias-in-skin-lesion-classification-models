@@ -1,6 +1,8 @@
 # Mitigating Bias in Skin Lesion Classification Models using Variational Autoencoders
 
-This project provides an implementation of an adapted version of the bias mitigation method by [Amini et. al](https://dl.acm.org/doi/10.1145/3306618.3314243) which was developed as part of my bachelor thesis with the title as above. The thesis is available in the `thesis` folder.
+This project provides an implementation of an adapted version of the bias mitigation method by [Amini et. al](https://dl.acm.org/doi/10.1145/3306618.3314243) which was developed as part of my bachelor thesis with the title above. The thesis is available in the `thesis` folder.
+
+You can also check out the [GitHub Page](https://jacob271.github.io/mitigating-bias-in-skin-lesion-classification-models/) of this repository for a summary of my bachelor thesis.
 
 ## Abstract of the thesis
 
@@ -14,19 +16,19 @@ The method is based on the following steps:
 2. Use the trained VAE to extract debiasing sample probabilities for the training dataset. Images with rare skin features are assigned higher probabilities.
 3. Use the debiasing sample probabilities to train a classifier. 
 4. Evaluate the classifier on the test dataset. This is done using the metric weighted accuracy.
-5. Evaluate bias of the classifier using the attributes sex, age, visible hair, and skin tone. Bias is measured as the variance of weighted accuracy across the different values of the attribute.
+5. Evaluate the bias of the classifier using the attributes sex, age, visible hair, and skin tone. Bias is measured as the variance of weighted accuracy across the different values of the attribute.
 
 To evaluate the effectiveness of the bias mitigation method, we also train a classifier with regular sample probabilities and evaluate its bias.
 During the experiments, we applied this method in different configurations.
 
 1. A binary classification task.
-2. A binary classification task with using transfer learning.
+2. A binary classification task using transfer learning.
 3. A multi-class classification task.
 
 
 ## Setup
 
-For this project you need to have Python 3.10 installed.
+For this project, you need to have Python 3.10 installed.
 
 Install the requirements with `pip3.10 install -r requirements.txt`.
 
@@ -44,14 +46,14 @@ Run `pip3.10 install isic-cli` followed by these three commands ([see here if th
 
 `isic metadata download --collections 73 >> data/ISIC2018_Task3_Validation_GroundTruth/metadata.csv`
 
-### Additional metadata
+### Additional Metadata
 
 Apart from the metadata provided by the ISIC Archive, we consider additional metadata about the skin tone and the hairiness of the patients.
 You find the respective metadata files in the `metadata` folder.
 
 We also provide notebooks to reproduce the determination of the skin tone and hairiness of the patients.
 
-To execute these, first start the notebooks using the following commands respectively:
+To execute these, first, start the notebooks using the following commands respectively:
 
 `jupyter notebook detect_hairs.ipynb`
 
@@ -65,11 +67,11 @@ We use `wandb` to log important information during the training process and keep
 
 ## Training
 
-The training is separated in two steps: training the VAE and training the classifier.
+The training is separated into two steps: training the VAE and training the classifier.
 
 ### Training the VAE
 
-You can train a VAE for two or four classes respectively for the binary and multi-class classification task.
+You can train a VAE for two or four classes respectively for the binary and multi-class classification tasks.
 
 To train the VAE, run `python3.10 vae_training.py --num_classes <NUM_CLASSES>`
 where `<NUM_CLASSES>` is either 2 or 4.
@@ -90,6 +92,6 @@ Feel free to change the architecture and experiment with your own models.
 ## Evaluation
 
 After the training, all relevant information is logged to wandb.
-To further evaluate the effectiveness of the bias mitigation method checkout the `bias_evaluation.ipynb` notebook.
+To further evaluate the effectiveness of the bias mitigation method check out the `bias_evaluation.ipynb` notebook.
 
-To do so, first start the notebook using `jupyter notebook bias_evaluation.ipynb` and follow the instructions in the notebook.
+To do so, first, start the notebook using `jupyter notebook bias_evaluation.ipynb` and follow the instructions in the notebook.
