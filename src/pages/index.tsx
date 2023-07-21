@@ -1,6 +1,8 @@
 import { Inter } from 'next/font/google'
 import ModalImage from 'react-modal-image';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGlobe, faCodeBranch} from '@fortawesome/free-solid-svg-icons';
+import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
@@ -10,9 +12,9 @@ export default function Home() {
 
           <section className="mb-8">
             <h1 className="text-5xl font-bold mb-2">Mitigating Bias in Skin Lesion Classification Models Using Variational Autoencoders</h1>
-            <p className="text-lg text-gray-500">
-              On this page, you find a short summary of my bachelor thesis.
-            </p>
+              <p className="text-lg text-gray-500">
+                  This page provides a summary of my bachelor thesis. Check out my <a href="https://jacobschaefer.de" className="text-black hover:text-blue-700"><FontAwesomeIcon icon={faGlobe} className="mr-1" />Website</a>, take a look at some other projects of mine on my <a href="https://github.com/jacob271" className="text-black hover:text-blue-700"><FontAwesomeIcon icon={faCodeBranch} className="mr-1" />GitHub Account</a>, or connect with me on <a href="https://www.linkedin.com/in/jsjacobschaefer/" className="text-black hover:text-blue-700"><FontAwesomeIcon icon={faLinkedin} className="mr-1" />LinkedIn</a>.
+              </p>
           </section>
 
           <section className="mb-8">
